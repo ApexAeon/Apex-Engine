@@ -1,0 +1,1 @@
+{"isJumping":false,"jumpHeight":0,"isMovingUp":false,"isMovingDown":false,"isMovingLeft":false,"isMovingRight":false,"char":"../assets/sprites/player/player.png","x":30,"y":0,"z":15,"lvl":"test1","realX":0,"realY":0,"facing":"left","speed":0.3,"isAlive":true,"isMoving":false,"velocity":{"north":0,"south":0,"east":0,"west":0,"up":0,"down":0},"isLoaded":false,"acceleration":0.1}
