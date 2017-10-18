@@ -14,6 +14,7 @@ gs = json.loads(open('../data/save/new.json').read())
 res = {}
 entities = {}
 mapdata = {}
+reslist = []
 
 def tickDoor(obj): # For every door object in a level, this will run, with the specified parameters of each specific door.
     if gs['x'] >= obj['posdict']['x'] and gs['y'] >= obj['posdict']['y'] and gs['z'] >= obj['posdict']['z'] and gs['x'] <= obj['dposdict']['x'] and gs['y'] <= obj['dposdict']['y'] and gs['z'] <= obj['dposdict']['z']:
@@ -32,7 +33,27 @@ def tickDoor(obj): # For every door object in a level, this will run, with the s
 def tickKill(obj):
     if gs['x'] >= obj['posdict']['x'] and gs['y'] >= obj['posdict']['y'] and gs['z'] >= obj['posdict']['z'] and gs['x'] <= obj['dposdict']['x'] and gs['y'] <= obj['dposdict']['y'] and gs['z'] <= obj['dposdict']['z']:
         gs['isAlive'] = False
-
+def loadres():
+    reslist = json.loads(open('../data/assets.json').read())
+    for respair in reslist:
+        if respair[0] == 'img'
+            try:
+                res[respair[1]] = pygame.image.load(respair[2])
+            except:
+                res[respair[1]] = pygame.image.load('../assets/error.png')
+        elif respair[0] == 'snd':
+            try:
+                res[respair[1]] = pygame.mixer.Sound(respair[2])
+            except:
+                res[respair[1]] = pygame.mixer.Sound('../assets/sounds/error.wav')
+def getres(name,restype):
+    if name in res:
+        return res[name]
+    elif restype == 'img':
+        return pygame.image.load('../assets/error.png')
+    elif restype == 'snd':
+        return pygame.mixer.Sound('../assets/sounds/error.wav')
+            
 def getGamestate(): # Will be used for saving gamestate.
     return gs
 def setGamestate(gsin): # Will be used for loading gamestate.
@@ -41,42 +62,8 @@ def calcX(x, y, z): # Convert isometrric X values into actual screen coordinates
     return ((x * 2 - z * 2) + 0.25 * (x-z)) * 4
 def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates.
     return ((x + z - y) + 0.25 * (x+z)) * 4
-def load():
-    res['hitbox'] = pygame.image.load('../assets/error.png')
-    res['lvl'] = pygame.image.load('../maps/error/visual.png')
-    res['walls'] = pygame.image.load('../maps/error/walls.png')
-    entities = json.loads(open('../maps/error/entities.json').read())
-    res['lvlmask'] = pygame.mask.from_surface(res['walls'])
-    res['hitmask'] = pygame.mask.from_surface(res['hitbox'])
-    mapdata = json.loads(open('../maps/error/data.json').read())
-    res['stepsounds'] = pygame.mixer.Sound('../assets/sounds/error.wav')
-    res['charNorthWalk1'] = pygame.image.load('../assets/error.png')
-    res['charNorthWalk2'] = pygame.image.load('../assets/error.png')
-    res['charNorthIdle'] = pygame.image.load('../assets/error.png')
-    res['charSouthWalk1'] = pygame.image.load('../assets/error.png')
-    res['charSouthWalk2'] = pygame.image.load('../assets/error.png')
-    res['charSouthIdle'] = pygame.image.load('../assets/error.png')
-    res['charEastWalk1'] = pygame.image.load('../assets/error.png')
-    res['charEastWalk2'] = pygame.image.load('../assets/error.png')
-    res['charEastIdle'] = pygame.image.load('../assets/error.png')
-    res['charWestWalk1'] = pygame.image.load('../assets/error.png')
-    res['charWestWalk2'] = pygame.image.load('../assets/error.png')
-    res['charWestIdle'] = pygame.image.load('../assets/error.png')
-    res['charNortheastWalk1'] = pygame.image.load('../assets/error.png')
-    res['charNortheastWalk2'] = pygame.image.load('../assets/error.png')
-    res['charNortheastIdle'] = pygame.image.load('../assets/error.png')
-    res['charNorthwestWalk1'] = pygame.image.load('../assets/error.png')
-    res['charNorthwestWalk2'] = pygame.image.load('../assets/error.png')
-    res['charNorthwestIdle'] = pygame.image.load('../assets/error.png')
-    res['charSoutheastWalk1'] = pygame.image.load('../assets/error.png')
-    res['charSoutheastWalk2'] = pygame.image.load('../assets/error.png')
-    res['charSoutheastIdle'] = pygame.image.load('../assets/error.png')
-    res['charSouthwestWalk1'] = pygame.image.load('../assets/error.png')
-    res['charSouthwestWalk2'] = pygame.image.load('../assets/error.png')
-    res['charSouthwestIdle'] = pygame.image.load('../assets/error.png')
-    res['chardisplay'] = res['charEastIdle']
+def loadmap():
     try:
-        res['hitbox'] = pygame.image.load('../assets/sprites/player/hitbox.png')
         res['lvl'] = pygame.image.load('../maps/' + gs['lvl'] + '/visual.png')
         res['walls'] = pygame.image.load('../maps/' + gs['lvl'] + '/walls.png')
         entities = json.loads(open('../maps/' + gs['lvl'] + '/entities.json').read())
@@ -84,41 +71,8 @@ def load():
         res['hitmask'] = pygame.mask.from_surface(res['hitbox'])
         mapdata = json.loads(open('../maps/' + gs['lvl'] + '/data.json').read())
         sound.play(mapdata['sounds'])
-        res['stepsounds'] = pygame.mixer.Sound('../assets/sounds/player/step.wav')
         gs['isLoaded'] = True
-        res['charNorthWalk1'] = pygame.image.load('../assets/sprites/player/north/walk1.png')
-        res['charNorthWalk2'] = pygame.image.load('../assets/sprites/player/north/walk2.png')
-        res['charNorthIdle'] = pygame.image.load('../assets/sprites/player/north/idle.png')
-        
-        res['charSouthWalk1'] = pygame.image.load('../assets/sprites/player/south/walk1.png')
-        res['charSouthWalk2'] = pygame.image.load('../assets/sprites/player/south/walk2.png')
-        res['charSouthIdle'] = pygame.image.load('../assets/sprites/player/south/idle.png')
-        
-        res['charEastWalk1'] = pygame.image.load('../assets/sprites/player/east/walk1.png')
-        res['charEastWalk2'] = pygame.image.load('../assets/sprites/player/east/walk2.png')
-        res['charEastIdle'] = pygame.image.load('../assets/sprites/player/east/idle.png')
-        
-        res['charWestWalk1'] = pygame.image.load('../assets/sprites/player/west/walk1.png')
-        res['charWestWalk2'] = pygame.image.load('../assets/sprites/player/west/walk2.png')
-        res['charWestIdle'] = pygame.image.load('../assets/sprites/player/west/idle.png')
-        
-        res['charNortheastWalk1'] = pygame.image.load('../assets/sprites/player/northeast/walk1.png')
-        res['charNortheastWalk2'] = pygame.image.load('../assets/sprites/player/northeast/walk2.png')
-        res['charNortheastIdle'] = pygame.image.load('../assets/sprites/player/northeast/idle.png')
-        
-        res['charNorthwestWalk1'] = pygame.image.load('../assets/error.png')
-        res['charNorthwestWalk2'] = pygame.image.load('../assets/error.png')
-        res['charNorthwestIdle'] = pygame.image.load('../assets/error.png')
-        
-        res['charSoutheastWalk1'] = pygame.image.load('../assets/error.png')
-        res['charSoutheastWalk2'] = pygame.image.load('../assets/error.png')
-        res['charSoutheastIdle'] = pygame.image.load('../assets/error.png')
-        
-        res['charSouthwestWalk1'] = pygame.image.load('../assets/sprites/player/southwest/walk1.png')
-        res['charSouthwestWalk2'] = pygame.image.load('../assets/sprites/player/southwest/walk2.png')
-        res['charSouthwestIdle'] = pygame.image.load('../assets/sprites/player/southwest/idle.png')
-
-        res['chardisplay'] = res['charEastIdle']
+        res['chardisplay'] = getres['charEastIdle','img']
     except:
         print("Missing or empty resources.")
 
