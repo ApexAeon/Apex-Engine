@@ -10,92 +10,95 @@ import pygame.mixer
 
 pygame.mixer.init()
 
-gs = json.loads(open('../data/save/new.json').read())
-res = {}
+gamestate = json.loads(open('../data/save/new.json').read())
+assets = {}
 entities = {}
-mapdata = {}
 reslist = []
+masks = {}
+level = {}
+assetlist = {}
+data = {}
 
 def tickDoor(obj): # For every door object in a level, this will run, with the specified parameters of each specific door.
-    if gs['x'] >= obj['posdict']['x'] and gs['y'] >= obj['posdict']['y'] and gs['z'] >= obj['posdict']['z'] and gs['x'] <= obj['dposdict']['x'] and gs['y'] <= obj['dposdict']['y'] and gs['z'] <= obj['dposdict']['z']:
+    if gamestate['x'] >= obj['posdict']['x'] and gamestate['y'] >= obj['posdict']['y'] and gamestate['z'] >= obj['posdict']['z'] and gamestate['x'] <= obj['dposdict']['x'] and gamestate['y'] <= obj['dposdict']['y'] and gamestate['z'] <= obj['dposdict']['z']:
         # Take the player to the destination if they are within the boundaries of the door.
-        gs['x'] = obj['exitposdict']['x']
-        gs['y'] = obj['exitposdict']['y']
-        gs['z'] = obj['exitposdict']['z']
-        gs['realX'] = 200 + gs['x'] + gs['z']
-        gs['realY'] = 200 + gs['x'] + gs['z'] + gs['y']
-        gs['lvl'] = obj['exitlvl']
-        gs['isMovingUp'] = False
-        gs['isMovingDown'] = False
-        gs['isMovingLeft'] = False
-        gs['isMovingRight'] = False
+        gamestate['x'] = obj['exitposdict']['x']
+        gamestate['y'] = obj['exitposdict']['y']
+        gamestate['z'] = obj['exitposdict']['z']
+        gamestate['realX'] = 200 + gamestate['x'] + gamestate['z']
+        gamestate['realY'] = 200 + gamestate['x'] + gamestate['z'] + gamestate['y']
+        gamestate['lvl'] = obj['exitlvl']
+        gamestate['isMovingUp'] = False
+        gamestate['isMovingDown'] = False
+        gamestate['isMovingLeft'] = False
+        gamestate['isMovingRight'] = False
         return 'CHANGELVL'
 def tickKill(obj):
-    if gs['x'] >= obj['posdict']['x'] and gs['y'] >= obj['posdict']['y'] and gs['z'] >= obj['posdict']['z'] and gs['x'] <= obj['dposdict']['x'] and gs['y'] <= obj['dposdict']['y'] and gs['z'] <= obj['dposdict']['z']:
-        gs['isAlive'] = False
-def loadres():
-    reslist = json.loads(open('../data/assets.json').read())
-    for respair in reslist:
-        if respair[0] == 'img'
-            try:
-                res[respair[1]] = pygame.image.load(respair[2])
-            except:
-                res[respair[1]] = pygame.image.load('../assets/error.png')
-        elif respair[0] == 'snd':
-            try:
-                res[respair[1]] = pygame.mixer.Sound(respair[2])
-            except:
-                res[respair[1]] = pygame.mixer.Sound('../assets/sounds/error.wav')
-def getres(name,restype):
-    if name in res:
-        return res[name]
-    elif restype == 'img':
+    if gamestate['x'] >= obj['posdict']['x'] and gamestate['y'] >= obj['posdict']['y'] and gamestate['z'] >= obj['posdict']['z'] and gamestate['x'] <= obj['dposdict']['x'] and gamestate['y'] <= obj['dposdict']['y'] and gamestate['z'] <= obj['dposdict']['z']:
+        gamestate['isAlive'] = False
+def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error.png.
+    assetlist = json.loads(open('../data/assets.json').read())
+    for pair in assetlist:
+        try:
+            assets[pair[0]] = pygame.image.load(pair[1])
+        except:
+            assets[pair[0]] = pygame.image.load('../assets/error.png')
+def getAsset(name):
+    if name in assets:
+        return assets[name]
+    else:
         return pygame.image.load('../assets/error.png')
-    elif restype == 'snd':
-        return pygame.mixer.Sound('../assets/sounds/error.wav')
+def getMask(name):
+    if name in masks:
+        return masks[name]
+    else:
+        return pygame.mask.from_surface(pygame.image.load('../assets/error.png'))
+def loadAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
+    try:
+        return pygame.image.load(filename)
+    except:
+        return pygame.image.load('../assets/error.png')
+def getLevel(name):
+    if name in level:
+        return level[name]
             
 def getGamestate(): # Will be used for saving gamestate.
-    return gs
-def setGamestate(gsin): # Will be used for loading gamestate.
-    gs = gsin
+    return gamestate
+def setGamestate(gamestatein): # Will be used for loading gamestate.
+    gamestate = gamestatein
 def calcX(x, y, z): # Convert isometrric X values into actual screen coordinates.
     return ((x * 2 - z * 2) + 0.25 * (x-z)) * 4
 def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates.
     return ((x + z - y) + 0.25 * (x+z)) * 4
-def loadmap():
+def loadLevel():
     try:
-        res['lvl'] = pygame.image.load('../maps/' + gs['lvl'] + '/visual.png')
-        res['walls'] = pygame.image.load('../maps/' + gs['lvl'] + '/walls.png')
-        entities = json.loads(open('../maps/' + gs['lvl'] + '/entities.json').read())
-        res['lvlmask'] = pygame.mask.from_surface(res['walls'])
-        res['hitmask'] = pygame.mask.from_surface(res['hitbox'])
-        mapdata = json.loads(open('../maps/' + gs['lvl'] + '/data.json').read())
-        sound.play(mapdata['sounds'])
-        gs['isLoaded'] = True
-        res['chardisplay'] = getres['charEastIdle','img']
+        level['visual'] = loadAsset('../maps/' + gamestate['lvl'] + '/visual.png')
+        level['bg'] = loadAsset('../maps/' + gamestate['lvl'] + '/walls.png')
+        level['fg'] = loadAsset('../maps/' + gamestate['lvl'] + '/forground.png')
+        level['cover'] = loadAsset('../maps/' + gamestate['lvl'] + '/cover.png')
+        entities = json.loads(open('../maps/' + gamestate['lvl'] + '/entities.json').read())
+        data = json.loads(open('../maps/' + gamestate['lvl'] + '/data.json').read())
+        masks['level'] = pygame.mask.from_surface(loadAsset('../maps/' + gamestate['lvl'] + '/walls.png'))
+        masks['player'] = pygame.mask.from_surface(loadAsset('../assets/sprites/player/hitbox.png'))
     except:
-        print("Missing or empty resources.")
-
-    
-    
+        print ('Could not load json files!')
 def start():
-    if not gs['isLoaded']:
-        load()
-    
 #
 # Main Game Loop
 #
     while True:
-        sound.ping()
-        if not gs['isAlive']:
+        if not gamestate['isAlive']:
             return 'DIE'
-        gs['realX'] = calcX(gs['x'], gs['y'], gs['z'])
-        gs['realY'] = calcY(gs['x'], gs['y'], gs['z'])
+        gamestate['realX'] = calcX(gamestate['x'], gamestate['y'], gamestate['z'])
+        gamestate['realY'] = calcY(gamestate['x'], gamestate['y'], gamestate['z'])
 
         timeStart = time.process_time() # Used to facilitate timing and FPS, see bottom of loop for more info.
 
-        DISPLAYSURF.blit(res['lvl'], (0,0))
-        DISPLAYSURF.blit(res['chardisplay'],(math.floor(gs['realX']),math.floor(gs['realY'])))
+        DISPLAYSURF.blit(getLevel('bg'), (0,0))
+        DISPLAYSURF.blit(getLevel('visual'), (0,0))
+        DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(gamestate['realX']),math.floor(gamestate['realY'])))
+        DISPLAYSURF.blit(getLevel('cover'), (0,0))
+        DISPLAYSURF.blit(getLevel('fg'), (0,0))
 
         for obj in entities: # Tick through every entity in the lvl
             if obj['type'] == 'door':
@@ -114,125 +117,120 @@ def start():
                 return 'PAUSE'
             
             if event.type is KEYDOWN and event.key is K_w:
-                gs['isMovingUp'] = True
-                gs['facing'] = 'up'               
-                gs['isMoving'] = True
+                gamestate['isMovingUp'] = True
+                gamestate['facing'] = 'up'               
+                gamestate['isMoving'] = True
             if event.type is KEYDOWN and event.key is K_a:
-                gs['isMovingLeft'] = True
-                gs['facing'] = 'left'                
-                gs['isMoving'] = True
+                gamestate['isMovingLeft'] = True
+                gamestate['facing'] = 'left'                
+                gamestate['isMoving'] = True
             if event.type is KEYDOWN and event.key is K_s:
-                gs['isMovingDown'] = True
-                gs['facing'] = 'down'               
-                gs['isMoving'] = True
+                gamestate['isMovingDown'] = True
+                gamestate['facing'] = 'down'               
+                gamestate['isMoving'] = True
             if event.type is KEYDOWN and event.key is K_d:
-                gs['isMovingRight'] = True
-                gs['facing'] = 'right'
-                gs['isMoving'] = True
+                gamestate['isMovingRight'] = True
+                gamestate['facing'] = 'right'
+                gamestate['isMoving'] = True
                 
             if event.type is KEYDOWN and event.key is K_SPACE:
-                gs['isJumping'] = True
+                gamestate['isJumping'] = True
                 
             if event.type is KEYUP and event.key is K_w:
-                gs['isMovingUp'] = False
+                gamestate['isMovingUp'] = False
             if event.type is KEYUP and event.key is K_a:
-                gs['isMovingLeft'] = False
+                gamestate['isMovingLeft'] = False
             if event.type is KEYUP and event.key is K_s:
-                gs['isMovingDown'] = False
+                gamestate['isMovingDown'] = False
             if event.type is KEYUP and event.key is K_d:
-                gs['isMovingRight'] = False
+                gamestate['isMovingRight'] = False
 #
 # Collision Detection and Movement
 #
-        if gs['isMovingUp'] and gs['velocity']['north'] != gs['speed']:
-            if gs['velocity']['north'] + gs['acceleration'] > gs['speed']:
-                gs['velocity']['north'] = gs['speed']
+        if gamestate['isMovingUp'] and gamestate['velocity']['north'] != gamestate['speed']:
+            if gamestate['velocity']['north'] + gamestate['acceleration'] > gamestate['speed']:
+                gamestate['velocity']['north'] = gamestate['speed']
             else:
-                gs['velocity']['north'] += gs['acceleration']
-        if gs['isMovingDown'] and gs['velocity']['south'] != gs['speed']:
-            if gs['velocity']['south'] + gs['acceleration'] > gs['speed']:
-                gs['velocity']['south'] = gs['speed']
+                gamestate['velocity']['north'] += gamestate['acceleration']
+        if gamestate['isMovingDown'] and gamestate['velocity']['south'] != gamestate['speed']:
+            if gamestate['velocity']['south'] + gamestate['acceleration'] > gamestate['speed']:
+                gamestate['velocity']['south'] = gamestate['speed']
             else:
-                gs['velocity']['south'] += gs['acceleration']
-        if gs['isMovingLeft'] and gs['velocity']['west'] != gs['speed']:
-            if gs['velocity']['west'] + gs['acceleration'] > gs['speed']:
-                gs['velocity']['west'] = gs['speed']
+                gamestate['velocity']['south'] += gamestate['acceleration']
+        if gamestate['isMovingLeft'] and gamestate['velocity']['west'] != gamestate['speed']:
+            if gamestate['velocity']['west'] + gamestate['acceleration'] > gamestate['speed']:
+                gamestate['velocity']['west'] = gamestate['speed']
             else:
-                gs['velocity']['west'] += gs['acceleration']
-        if gs['isMovingRight'] and gs['velocity']['east'] != gs['speed']:
-            if gs['velocity']['east'] + gs['acceleration'] > gs['speed']:
-                gs['velocity']['east'] = gs['speed']
+                gamestate['velocity']['west'] += gamestate['acceleration']
+        if gamestate['isMovingRight'] and gamestate['velocity']['east'] != gamestate['speed']:
+            if gamestate['velocity']['east'] + gamestate['acceleration'] > gamestate['speed']:
+                gamestate['velocity']['east'] = gamestate['speed']
             else:
-                gs['velocity']['east'] += gs['acceleration']
+                gamestate['velocity']['east'] += gamestate['acceleration']
 
-        if not gs['isMovingUp'] and gs['velocity']['north'] > 0:
-            if gs['velocity']['north'] - gs['acceleration'] >= 0:
-                gs['velocity']['north'] -= gs['acceleration']
+        if not gamestate['isMovingUp'] and gamestate['velocity']['north'] > 0:
+            if gamestate['velocity']['north'] - gamestate['acceleration'] >= 0:
+                gamestate['velocity']['north'] -= gamestate['acceleration']
             else:
-                gs['velocity']['north'] = 0                
-        if not gs['isMovingDown'] and gs['velocity']['south'] > 0:
-            if gs['velocity']['south'] - gs['acceleration'] >= 0:
-                gs['velocity']['south'] -= gs['acceleration']
+                gamestate['velocity']['north'] = 0                
+        if not gamestate['isMovingDown'] and gamestate['velocity']['south'] > 0:
+            if gamestate['velocity']['south'] - gamestate['acceleration'] >= 0:
+                gamestate['velocity']['south'] -= gamestate['acceleration']
             else:
-                gs['velocity']['south'] = 0                
-        if not gs['isMovingLeft'] and gs['velocity']['west'] > 0:
-            if gs['velocity']['west'] - gs['acceleration'] >= 0:
-                gs['velocity']['west'] -= gs['acceleration']
+                gamestate['velocity']['south'] = 0                
+        if not gamestate['isMovingLeft'] and gamestate['velocity']['west'] > 0:
+            if gamestate['velocity']['west'] - gamestate['acceleration'] >= 0:
+                gamestate['velocity']['west'] -= gamestate['acceleration']
             else:
-                gs['velocity']['west'] = 0                
-        if not gs['isMovingRight'] and gs['velocity']['east'] > 0:
-            if gs['velocity']['east'] - gs['acceleration'] >= 0:
-                gs['velocity']['east'] -= gs['acceleration']
+                gamestate['velocity']['west'] = 0                
+        if not gamestate['isMovingRight'] and gamestate['velocity']['east'] > 0:
+            if gamestate['velocity']['east'] - gamestate['acceleration'] >= 0:
+                gamestate['velocity']['east'] -= gamestate['acceleration']
             else:
-                gs['velocity']['east'] = 0
+                gamestate['velocity']['east'] = 0
 
                 
-        if gs['velocity']['north'] > 0 and     res['lvlmask'].overlap_area( res['hitmask'] , ( math.floor(calcX(gs['x'],0,gs['z']-gs['velocity']['north'])) , math.floor(calcY(gs['x'],0,gs['z']-gs['velocity']['north'])) ) ) is 0:
-            gs['z'] = gs['z'] - gs['velocity']['north']
-        if gs['velocity']['west'] > 0 and   res['lvlmask'].overlap_area( res['hitmask'] , ( math.floor(calcX(gs['x']-gs['velocity']['west'],0,gs['z'])) , math.floor(calcY(gs['x']-gs['velocity']['west'],0,gs['z'])) ) ) is 0:
-            gs['x'] = gs['x'] - gs['velocity']['west']
-        if gs['velocity']['south'] > 0 and   res['lvlmask'].overlap_area( res['hitmask'] , ( math.floor(calcX(gs['x'],0,gs['z']+gs['velocity']['south'])) , math.floor(calcY(gs['x'],0,gs['z']+gs['velocity']['south'])) ) ) is 0:
-            gs['z'] = gs['z'] + gs['velocity']['south'] 
-        if gs['velocity']['east'] > 0 and  res['lvlmask'].overlap_area( res['hitmask'] , ( math.floor(calcX(gs['x']+gs['velocity']['east'],0,gs['z'])) , math.floor(calcY(gs['x']+gs['velocity']['east'],0,gs['z'])) ) ) is 0:
-            gs['x'] = gs['x'] + gs['velocity']['east']
+        if gamestate['velocity']['north'] > 0 and getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) ) ) is 0:
+            gamestate['z'] = gamestate['z'] - gamestate['velocity']['north']
+        if gamestate['velocity']['west'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) ) ) is 0:
+            gamestate['x'] = gamestate['x'] - gamestate['velocity']['west']
+        if gamestate['velocity']['south'] > 0 and      getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['velocity']['south'])) ) ) is 0:
+            gamestate['z'] = gamestate['z'] + gamestate['velocity']['south'] 
+        if gamestate['velocity']['east'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) ) ) is 0:
+            gamestate['x'] = gamestate['x'] + gamestate['velocity']['east']
 #
 # Jumping
 #
-        if gs['isJumping']:
-            if gs['jumpHeight'] is not 50:
-                gs['y'] = gs['y'] + 5
-                gs['realY'] = gs['realY'] - 5
-                gs['jumpHeight'] = gs['jumpHeight'] + 5
-            if gs['jumpHeight'] is 50 and gs['y'] is not 0:
-                gs['y'] = gs['y'] - 5
-                gs['realY'] = gs['realY'] + 5
-            if gs['jumpHeight'] is 50 and gs['y'] is 0:
-                gs['jumpHeight'] = 0
-                gs['isJumping'] = 0
+        if gamestate['isJumping']:
+            if gamestate['jumpHeight'] is not 50:
+                gamestate['y'] = gamestate['y'] + 5
+                gamestate['realY'] = gamestate['realY'] - 5
+                gamestate['jumpHeight'] = gamestate['jumpHeight'] + 5
+            if gamestate['jumpHeight'] is 50 and gamestate['y'] is not 0:
+                gamestate['y'] = gamestate['y'] - 5
+                gamestate['realY'] = gamestate['realY'] + 5
+            if gamestate['jumpHeight'] is 50 and gamestate['y'] is 0:
+                gamestate['jumpHeight'] = 0
+                gamestate['isJumping'] = 0
 #
 # Debug Coordinates
 #
-        DISPLAYSURF.blit(FONT.render('X: ' + str(gs['x']) + ' Y: ' + str(gs['y']) + ' Z: ' + str(gs['z']), True, (0, 128, 255), (0, 0, 0)), (25,25)) # Display current player position for dev use.
-        DISPLAYSURF.blit(FONT.render('Nvel: ' + str(gs['velocity']['north']) + ' Evel: ' + str(gs['velocity']['east']) + ' Svel: ' + str(gs['velocity']['south']) + ' Wvel: ' + str(gs['velocity']['west']), True, (0, 128, 255), (0, 0, 0)), (25,500)) # Display current player position for dev use.
+        DISPLAYSURF.blit(FONT.render('X: ' + str(gamestate['x']) + ' Y: ' + str(gamestate['y']) + ' Z: ' + str(gamestate['z']), True, (0, 128, 255), (0, 0, 0)), (25,25)) # Display current player position for dev use.
+        DISPLAYSURF.blit(FONT.render('Nvel: ' + str(gamestate['velocity']['north']) + ' Evel: ' + str(gamestate['velocity']['east']) + ' Svel: ' + str(gamestate['velocity']['south']) + ' Wvel: ' + str(gamestate['velocity']['west']), True, (0, 128, 255), (0, 0, 0)), (25,500)) # Display current player position for dev use.
 
 #
 # Animations
 #
-        if gs['velocity']['north'] + gs['velocity']['south'] + gs['velocity']['east'] + gs['velocity']['west'] is 0:
-            if gs['facing'] == "left":
-                res['chardisplay'] = res['charWestIdle']
-            if gs['facing'] == "right":
-                res['chardisplay'] = res['charEastIdle']
-            if gs['facing'] == "up":
-                res['chardisplay'] = res['charNorthIdle']
-            if gs['facing'] == "down":
-                res['chardisplay'] = res['charSouthIdle']
-        
+
         
         while True: # Delays time and makes sure a certain amount has passed since the last tick. Prevents crazy FPS and weird timing.
             if time.process_time() - timeStart > 0.03: #0.03
                 pygame.display.update()
                 break
+
+loadAssets()
+loadLevel()
+
 
      
             
