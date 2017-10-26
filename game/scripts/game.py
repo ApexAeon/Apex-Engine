@@ -67,9 +67,15 @@ def getGamestate(): # Will be used for saving gamestate.
 def setGamestate(gamestatein): # Will be used for loading gamestate.
     gamestate = gamestatein
 def calcX(x, y, z): # Convert isometrric X values into actual screen coordinates.
-    return ((x * 2 - z * 2) + 0.25 * (x-z)) * 4
+    if gamestate['levelMode'] == 'iso':
+        return ((x * 2 - z * 2) + 0.25 * (x-z)) * 4
+    else:
+        return x * 4
 def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates.
-    return ((x + z - y) + 0.25 * (x+z)) * 4
+    if gamestate['levelMode'] == 'iso':
+        return ((x + z - y) + 0.25 * (x+z)) * 4
+    else:
+        return (z - y) * 4
 def loadLevel():
     try:
         level['visual'] = loadAsset('../maps/' + gamestate['lvl'] + '/visual.png')
@@ -80,6 +86,7 @@ def loadLevel():
         data = json.loads(open('../maps/' + gamestate['lvl'] + '/data.json').read())
         masks['level'] = pygame.mask.from_surface(loadAsset('../maps/' + gamestate['lvl'] + '/walls.png'))
         masks['player'] = pygame.mask.from_surface(loadAsset('../assets/sprites/player/hitbox.png'))
+        gamestate['levelMode'] = data['levelMode']
     except:
         print ('Could not load json files!')
 def start():
