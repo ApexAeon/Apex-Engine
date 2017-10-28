@@ -87,6 +87,12 @@ def loadLevel():
         masks['level'] = pygame.mask.from_surface(loadAsset('../maps/' + gamestate['lvl'] + '/walls.png'))
         masks['player'] = pygame.mask.from_surface(loadAsset('../assets/sprites/player/hitbox.png'))
         gamestate['levelMode'] = data['levelMode']
+        if 'planes' in data:
+            level['tempCounter'] = 1
+            for plane in data['planes']:
+                masks['level'+level['tempCounter']] = plane
+                level['tempCounter'] += 1
+                
     except:
         print ('Could not load json files!')
 def start():
@@ -222,6 +228,14 @@ def start():
 #
 # Debug Coordinates
 #
+        for plane in data['planes']:
+            if gamestate['y'] = plane['y']: # This means that the player may be standing
+                if getMask('level'+plane['num']-1).overlap_area(getMask('player'), (math.floor(calcX(gamestate['x'],0,gamestate['z'])),math.floor(calcY(gamestate['x'],0,gamestate['z']))) ) is False: # Detects if there is no floor beneath the player.
+                    gamestate['y'] -= 1
+            else:
+                gamestate['y'] -= 1
+                
+            
         DISPLAYSURF.blit(FONT.render('X: ' + str(gamestate['x']) + ' Y: ' + str(gamestate['y']) + ' Z: ' + str(gamestate['z']), True, (0, 128, 255), (0, 0, 0)), (25,25)) # Display current player position for dev use.
         DISPLAYSURF.blit(FONT.render('Nvel: ' + str(gamestate['velocity']['north']) + ' Evel: ' + str(gamestate['velocity']['east']) + ' Svel: ' + str(gamestate['velocity']['south']) + ' Wvel: ' + str(gamestate['velocity']['west']), True, (0, 128, 255), (0, 0, 0)), (25,500)) # Display current player position for dev use.
 
