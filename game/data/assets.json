@@ -1,3 +1,27 @@
 [
-	["","",""]
+	["name","path"],
+	["n1","../assets/sprites/player/n1.png"],
+	["e1","../assets/sprites/player/e1.png"],
+	["s1","../assets/sprites/player/s1.png"],
+	["w1","../assets/sprites/player/w1.png"],
+	["ne1","../assets/sprites/player/ne1.png"],
+	["se1","../assets/sprites/player/se1.png"],
+	["sw1","../assets/sprites/player/sw1.png"],
+	["nw1","../assets/sprites/player/nw1.png"],
+	["n2","../assets/sprites/player/n2.png"],
+	["e2","../assets/sprites/player/e2.png"],
+	["s2","../assets/sprites/player/s2.png"],
+	["w2","../assets/sprites/player/w2.png"],
+	["ne2","../assets/sprites/player/ne2.png"],
+	["se2","../assets/sprites/player/se2.png"],
+	["sw2","../assets/sprites/player/sw2.png"],
+	["nw2","../assets/sprites/player/nw2.png"],
+	["n","../assets/sprites/player/n.png"],
+	["e","../assets/sprites/player/e.png"],
+	["s","../assets/sprites/player/s.png"],
+	["w","../assets/sprites/player/w.png"],
+	["ne","../assets/sprites/player/ne.png"],
+	["se","../assets/sprites/player/se.png"],
+	["sw","../assets/sprites/player/sw.png"],
+	["nw","../assets/sprites/player/nw.png"]
 ]

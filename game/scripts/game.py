@@ -7,6 +7,11 @@ import time
 import math
 import sound
 import pygame.mixer
+import importlib
+'''
+for module in json.load(open('../data/objects.json')):
+    importlib.__import__('objects.' + module)
+    '''
 
 pygame.mixer.init()
 
@@ -19,40 +24,26 @@ level = {}
 assetlist = {}
 data = {}
 
-def tickDoor(obj): # For every door object in a level, this will run, with the specified parameters of each specific door.
-    if gamestate['x'] >= obj['posdict']['x'] and gamestate['y'] >= obj['posdict']['y'] and gamestate['z'] >= obj['posdict']['z'] and gamestate['x'] <= obj['dposdict']['x'] and gamestate['y'] <= obj['dposdict']['y'] and gamestate['z'] <= obj['dposdict']['z']:
-        # Take the player to the destination if they are within the boundaries of the door.
-        gamestate['x'] = obj['exitposdict']['x']
-        gamestate['y'] = obj['exitposdict']['y']
-        gamestate['z'] = obj['exitposdict']['z']
-        gamestate['realX'] = 200 + gamestate['x'] + gamestate['z']
-        gamestate['realY'] = 200 + gamestate['x'] + gamestate['z'] + gamestate['y']
-        gamestate['lvl'] = obj['exitlvl']
-        gamestate['isMovingUp'] = False
-        gamestate['isMovingDown'] = False
-        gamestate['isMovingLeft'] = False
-        gamestate['isMovingRight'] = False
-        return 'CHANGELVL'
-def tickKill(obj):
-    if gamestate['x'] >= obj['posdict']['x'] and gamestate['y'] >= obj['posdict']['y'] and gamestate['z'] >= obj['posdict']['z'] and gamestate['x'] <= obj['dposdict']['x'] and gamestate['y'] <= obj['dposdict']['y'] and gamestate['z'] <= obj['dposdict']['z']:
-        gamestate['isAlive'] = False
-def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error.png.
+def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
     assetlist = json.loads(open('../data/assets.json').read())
     for pair in assetlist:
         try:
             assets[pair[0]] = pygame.image.load(pair[1])
         except:
             assets[pair[0]] = pygame.image.load('../assets/error.png')
-def getAsset(name):
+
+def getAsset(name): # Get an already loaded asset, if asset not found, replace with error texture.
     if name in assets:
         return assets[name]
     else:
         return pygame.image.load('../assets/error.png')
+
 def getMask(name):
     if name in masks:
         return masks[name]
     else:
         return pygame.mask.from_surface(pygame.image.load('../assets/error.png'))
+    
 def loadAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
     try:
         return pygame.image.load(filename)
@@ -80,9 +71,9 @@ def loadLevel():
     try:
         level['visual'] = loadAsset('../maps/' + gamestate['lvl'] + '/visual.png')
         level['bg'] = loadAsset('../maps/' + gamestate['lvl'] + '/walls.png')
-        level['fg'] = loadAsset('../maps/' + gamestate['lvl'] + '/forground.png')
+        level['fg'] = loadAsset('../maps/' + gamestate['lvl'] + '/foreground.png')
         level['cover'] = loadAsset('../maps/' + gamestate['lvl'] + '/cover.png')
-        entities = json.loads(open('../maps/' + gamestate['lvl'] + '/entities.json').read())
+        objects = json.loads(open('../maps/' + gamestate['lvl'] + '/entities.json').read())
         data = json.loads(open('../maps/' + gamestate['lvl'] + '/data.json').read())
         masks['level'] = pygame.mask.from_surface(loadAsset('../maps/' + gamestate['lvl'] + '/walls.png'))
         masks['player'] = pygame.mask.from_surface(loadAsset('../assets/sprites/player/hitbox.png'))
@@ -102,23 +93,15 @@ def start():
     while True:
         if not gamestate['isAlive']:
             return 'DIE'
-        gamestate['realX'] = calcX(gamestate['x'], gamestate['y'], gamestate['z'])
-        gamestate['realY'] = calcY(gamestate['x'], gamestate['y'], gamestate['z'])
-
+        
         timeStart = time.process_time() # Used to facilitate timing and FPS, see bottom of loop for more info.
-
         DISPLAYSURF.blit(getLevel('bg'), (0,0))
         DISPLAYSURF.blit(getLevel('visual'), (0,0))
-        DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(gamestate['realX']),math.floor(gamestate['realY'])))
+        DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
         DISPLAYSURF.blit(getLevel('cover'), (0,0))
         DISPLAYSURF.blit(getLevel('fg'), (0,0))
-
-        for obj in entities: # Tick through every entity in the lvl
-            if obj['type'] == 'door':
-                if tickDoor(obj) == 'CHANGELVL':
-                    return 'CHANGELVL'
-            if obj['type'] == 'kill':
-                tickKill(obj)
+        if not gamestate['isMoving']:
+            assets['chardisplay'] = getAsset(gamestate['facing'])
 #
 # Event Processing
 #
@@ -131,19 +114,42 @@ def start():
             
             if event.type is KEYDOWN and event.key is K_w:
                 gamestate['isMovingUp'] = True
-                gamestate['facing'] = 'up'               
+                if gamestate['facing'] == 'e':
+                    gamestate['facing'] = 'ne'
+                elif gamestate['facing'] == 'w':
+                    gamestate['facing'] = 'nw'
+                else:
+                    gamestate['facing'] = 'n'
                 gamestate['isMoving'] = True
+
             if event.type is KEYDOWN and event.key is K_a:
                 gamestate['isMovingLeft'] = True
-                gamestate['facing'] = 'left'                
+                if gamestate['facing'] == 'n':
+                    gamestate['facing'] = 'nw'
+                elif gamestate['facing'] == 's':
+                    gamestate['facing'] = 'sw'
+                else:
+                    gamestate['facing'] = 'w'
                 gamestate['isMoving'] = True
+
             if event.type is KEYDOWN and event.key is K_s:
                 gamestate['isMovingDown'] = True
-                gamestate['facing'] = 'down'               
+                if gamestate['facing'] == 'e':
+                    gamestate['facing'] = 'se'
+                elif gamestate['facing'] == 'w':
+                    gamestate['facing'] = 'sw'
+                else:
+                    gamestate['facing'] = 's'
                 gamestate['isMoving'] = True
+
             if event.type is KEYDOWN and event.key is K_d:
                 gamestate['isMovingRight'] = True
-                gamestate['facing'] = 'right'
+                if gamestate['facing'] == 'n':
+                    gamestate['facing'] = 'ne'
+                elif gamestate['facing'] == 's':
+                    gamestate['facing'] = 'se'
+                else:
+                    gamestate['facing'] = 'e'
                 gamestate['isMoving'] = True
                 
             if event.type is KEYDOWN and event.key is K_SPACE:
@@ -202,7 +208,6 @@ def start():
             else:
                 gamestate['velocity']['east'] = 0
 
-                
         if gamestate['velocity']['north'] > 0 and getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) ) ) is 0:
             gamestate['z'] = gamestate['z'] - gamestate['velocity']['north']
         if gamestate['velocity']['west'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) ) ) is 0:
@@ -211,31 +216,10 @@ def start():
             gamestate['z'] = gamestate['z'] + gamestate['velocity']['south'] 
         if gamestate['velocity']['east'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) ) ) is 0:
             gamestate['x'] = gamestate['x'] + gamestate['velocity']['east']
-#
-# Jumping
-#
-        if gamestate['isJumping']:
-            if gamestate['jumpHeight'] is not 50:
-                gamestate['y'] = gamestate['y'] + 5
-                gamestate['realY'] = gamestate['realY'] - 5
-                gamestate['jumpHeight'] = gamestate['jumpHeight'] + 5
-            if gamestate['jumpHeight'] is 50 and gamestate['y'] is not 0:
-                gamestate['y'] = gamestate['y'] - 5
-                gamestate['realY'] = gamestate['realY'] + 5
-            if gamestate['jumpHeight'] is 50 and gamestate['y'] is 0:
-                gamestate['jumpHeight'] = 0
-                gamestate['isJumping'] = 0
+
 #
 # Debug Coordinates
-#
-        for plane in data['planes']:
-            if gamestate['y'] = plane['y']: # This means that the player may be standing
-                if getMask('level'+plane['num']-1).overlap_area(getMask('player'), (math.floor(calcX(gamestate['x'],0,gamestate['z'])),math.floor(calcY(gamestate['x'],0,gamestate['z']))) ) is False: # Detects if there is no floor beneath the player.
-                    gamestate['y'] -= 1
-            else:
-                gamestate['y'] -= 1
-                
-            
+#       
         DISPLAYSURF.blit(FONT.render('X: ' + str(gamestate['x']) + ' Y: ' + str(gamestate['y']) + ' Z: ' + str(gamestate['z']), True, (0, 128, 255), (0, 0, 0)), (25,25)) # Display current player position for dev use.
         DISPLAYSURF.blit(FONT.render('Nvel: ' + str(gamestate['velocity']['north']) + ' Evel: ' + str(gamestate['velocity']['east']) + ' Svel: ' + str(gamestate['velocity']['south']) + ' Wvel: ' + str(gamestate['velocity']['west']), True, (0, 128, 255), (0, 0, 0)), (25,500)) # Display current player position for dev use.
 
@@ -251,6 +235,30 @@ def start():
 
 loadAssets()
 loadLevel()
+
+'''
+        if gamestate['isJumping']:
+            if gamestate['jumpHeight'] is not 50:
+                gamestate['y'] = gamestate['y'] + 5
+                gamestate['realY'] = gamestate['realY'] - 5
+                gamestate['jumpHeight'] = gamestate['jumpHeight'] + 5
+            if gamestate['jumpHeight'] is 50 and gamestate['y'] is not 0:
+                gamestate['y'] = gamestate['y'] - 5
+                gamestate['realY'] = gamestate['realY'] + 5
+            if gamestate['jumpHeight'] is 50 and gamestate['y'] is 0:
+                gamestate['jumpHeight'] = 0
+                gamestate['isJumping'] = 0
+
+The Planar System - Must be fixed.
+
+            for plane in data['planes']:
+                if gamestate['y'] == plane['y']: # This means that the player may be standing
+                    if getMask('level'+plane['num']-1).overlap_area(getMask('player'), (math.floor(calcX(gamestate['x'],0,gamestate['z'])),math.floor(calcY(gamestate['x'],0,gamestate['z']))) ) is False: # Detects if there is no floor beneath the player.
+                        gamestate['y'] -= 1
+                    else:
+                        gamestate['y'] -= 1
+                        
+'''
 
 
      

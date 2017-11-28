@@ -1,0 +1,2 @@
+def testFunc():
+    return 'Success'
