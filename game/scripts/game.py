@@ -7,11 +7,7 @@ import time
 import math
 import sound
 import pygame.mixer
-import importlib
-'''
-for module in json.load(open('../data/objects.json')):
-    importlib.__import__('objects.' + module)
-    '''
+import objects
 
 pygame.mixer.init()
 
