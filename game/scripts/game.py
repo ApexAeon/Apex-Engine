@@ -13,13 +13,18 @@ pygame.mixer.init()
 
 gamestate = json.loads(open('../data/save/new.json').read())
 assets = {}
-entities = {}
+entities = []
 reslist = []
 masks = {}
 level = {}
 assetlist = {}
 data = {}
 
+def trigger(name):
+    for entity in entities:
+        if entity['name'] == name:
+            entity.trigger()
+    
 def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
     assetlist = json.loads(open('../data/assets.json').read())
     for pair in assetlist:
@@ -69,7 +74,10 @@ def loadLevel():
         level['bg'] = loadAsset('../maps/' + gamestate['lvl'] + '/walls.png')
         level['fg'] = loadAsset('../maps/' + gamestate['lvl'] + '/foreground.png')
         level['cover'] = loadAsset('../maps/' + gamestate['lvl'] + '/cover.png')
-        objects = json.loads(open('../maps/' + gamestate['lvl'] + '/entities.json').read())
+        entity_counter = 0
+        for entity in json.loads(open('../maps/' + gamestate['lvl'] + '/entities.json').read()):
+            entities[entity_counter] = objects.spawn(entity)
+            entity_counter += 1
         data = json.loads(open('../maps/' + gamestate['lvl'] + '/data.json').read())
         masks['level'] = pygame.mask.from_surface(loadAsset('../maps/' + gamestate['lvl'] + '/walls.png'))
         masks['player'] = pygame.mask.from_surface(loadAsset('../assets/sprites/player/hitbox.png'))

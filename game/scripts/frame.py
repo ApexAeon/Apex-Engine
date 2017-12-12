@@ -25,19 +25,8 @@ paused = False
 def writescreen(strin, pos):
     DISPLAYSURF.blit(FONT.render(strin, True, (0, 128, 255)), pos)
 
-def writeconsole(strin):
-    consolelog.append(strin)
-    if gamestate is GameState.console:
-        writescreen(strin, (0, consolelines * 25))
-        consolelines += 1
-
 gamemode = GameMode.mainmenu
-
-
-
 selected = 1
-
-
 gameinfo = open('..\\data\\gameinfo.json','r') # Load the gameinfo file
 parsed = json.loads(gameinfo.read()) # Parse gaminfo's JSON into a dictionary
 
@@ -93,9 +82,9 @@ while True: # Main loop
                     pygame.quit()
                     sys.exit()
                     
-            if event.type is KEYDOWN and event.key is K_s:
+            if event.type is KEYDOWN and event.key == K_DOWN:
                 selected = selected + 1
-            if event.type is KEYDOWN and event.key is K_w:
+            if event.type is KEYDOWN and event.key == K_UP:
                 selected = selected - 1
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.load:

@@ -10,7 +10,7 @@ DISPLAYSURF = pygame.display.set_mode((828, 640))
 FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
 def write(strin, pos):
     DISPLAYSURF.blit(FONT.render(strin, True, (0, 128, 255)), pos)
-gridunit = pygame.image.load("../src/assets/textures/grid/v3/grid.png")
+gridunit = pygame.image.load("../game/assets/textures/grid/v3/grid.png")
 currentX = 0
 currentY = 0
 for a in range(0, 640//gridunit.get_height()*gridunit.get_height(), gridunit.get_height()):
@@ -24,7 +24,7 @@ currentY = 0
 currentAsset = 0
 placing = False
 assets = []
-for dirpath, dirnames, filenames in os.walk("..\\src\\assets\\textures"):
+for dirpath, dirnames, filenames in os.walk("..\\game\\assets\\textures"):
     for filename in [f for f in filenames if f.endswith(".png")]:
         assets.append(pygame.image.load(os.path.join(dirpath, filename)))
 print(pygame.display.list_modes())
