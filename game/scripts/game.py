@@ -31,25 +31,25 @@ def loadAssets(): # Attempts to load all assets listed in assets.json into the a
         try:
             assets[pair[0]] = pygame.image.load(pair[1])
         except:
-            assets[pair[0]] = pygame.image.load('../assets/error.png')
+            assets[pair[0]] = pygame.Surface((25, 25))
 
 def getAsset(name): # Get an already loaded asset, if asset not found, replace with error texture.
     if name in assets:
         return assets[name]
     else:
-        return pygame.image.load('../assets/error.png')
+        return pygame.Surface((25, 25))
 
 def getMask(name):
     if name in masks:
         return masks[name]
     else:
-        return pygame.mask.from_surface(pygame.image.load('../assets/error.png'))
+        return pygame.mask.from_surface(pygame.Surface((25, 25)))
     
 def loadAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
     try:
         return pygame.image.load(filename)
     except:
-        return pygame.image.load('../assets/error.png')
+        return pygame.Surface((25, 25))
 def getLevel(name):
     if name in level:
         return level[name]

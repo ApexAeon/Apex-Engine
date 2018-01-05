@@ -6,6 +6,28 @@ import game
 from common import DISPLAYSURF
 from common import FONT
 
+menu_assets = {}
+
+def loadMenuAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
+    assetlist = json.loads(open('../data/menu_assets.json').read())
+    for pair in assetlist:
+        try:
+            menu_assets[pair[0]] = pygame.image.load(pair[1])
+        except:
+            menu_assets[pair[0]] = pygame.Surface((25, 25))
+
+def getMenuAsset(name): # Get an already loaded asset, if asset not found, replace with error texture.
+    if name in menu_assets:
+        return menu_assets[name]
+    else:
+        return pygame.Surface((25, 25))
+
+def loadMenuAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
+    try:
+        return pygame.image.load(filename)
+    except:
+        return pygame.Surface((25, 25))
+
 class GameMode(Enum):
     mainmenu = 0
     options = 1
@@ -17,8 +39,6 @@ class GameMode(Enum):
     playing = 7
     gameover = 8
 
-consolelog = []
-consolelines = 1
 drawn = False
 paused = False
 
@@ -29,16 +49,11 @@ gamemode = GameMode.mainmenu
 selected = 1
 gameinfo = open('..\\data\\gameinfo.json','r') # Load the gameinfo file
 parsed = json.loads(gameinfo.read()) # Parse gaminfo's JSON into a dictionary
-
-cover = pygame.image.load(parsed['cover'])
-icon = pygame.image.load(parsed['icon'])
-pausebutton = pygame.image.load(parsed['pause'])
-gameoverscreen = pygame.image.load(parsed['gameover'])
     
 pygame.init()
 DISPLAYSURF = pygame.display.set_mode((828, 640))
 pygame.display.set_caption(parsed['name'])
-pygame.display.set_icon(icon)
+pygame.display.set_icon(getMenuAsset('icon'))
 FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
 
 while True: # Main loop
@@ -51,11 +66,7 @@ while True: # Main loop
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.mainmenu: # Code for the main menu. 
 
-            DISPLAYSURF.blit(cover, (0, 0))
-            writescreen('New Game',(25,25))
-            writescreen('Load',(25,50))
-            writescreen('Options',(25,75))
-            writescreen('Quit',(25,100))
+            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
 
             if selected is 5:
                 selected = 1
@@ -63,13 +74,13 @@ while True: # Main loop
                 selected = 4
 
             if selected is 1:
-                DISPLAYSURF.blit(FONT.render('New Game',    True, (255, 140, 0)), (25, 25))
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_play'), (0, 0))
             if selected is 2:
-                DISPLAYSURF.blit(FONT.render('Load',        True, (255, 140, 0)), (25, 50))
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_load'), (0, 0))
             if selected is 3:
-                DISPLAYSURF.blit(FONT.render('Options',     True, (255, 140, 0)), (25, 75))
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_options'), (0, 0))
             if selected is 4:
-                DISPLAYSURF.blit(FONT.render('Quit',        True, (255, 140, 0)), (25, 100))
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_quit'), (0, 0))
 
             if event.type is KEYDOWN and event.key is K_RETURN:
                 if selected is 1:
@@ -82,19 +93,19 @@ while True: # Main loop
                     pygame.quit()
                     sys.exit()
                     
-            if event.type is KEYDOWN and event.key == K_DOWN:
+            if event.type is KEYDOWN and (event.key == K_DOWN or event.key == K_RIGHT):
                 selected = selected + 1
-            if event.type is KEYDOWN and event.key == K_UP:
+            if event.type is KEYDOWN and (event.key == K_UP or event.key == K_LEFT):
                 selected = selected - 1
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.load:
-            DISPLAYSURF.blit(cover, (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
             game.setGamestate(json.loads(open('../data/save/save.json','r').read()))
             gamemode = GameMode.playing
             paused = False
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.save:
-            DISPLAYSURF.blit(cover, (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
             open('../data/save/save.json','w').truncate()
             open('../data/save/save.json','w').write(json.dumps(game.getGamestate()))
             if paused:
@@ -103,25 +114,13 @@ while True: # Main loop
                 gamemode = GameMode.mainmenu
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.options:
-            DISPLAYSURF.blit(cover, (0, 0))
+            DISPLAYSURF.blit(getMenuAsset(getMenuAsset('cover')), (0, 0))
             writescreen( 'Options are currently not available. Please exit the program XD.' , (25,25) )
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        if gamemode is GameMode.console:
-            DISPLAYSURF.blit(cover, (0, 0))
-
-            # --STUB-- The console will be implemented in other classes
-            # It will be a combination of some simple commands, and also
-            # a FORTH interpreter.
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.paused:
             paused = True
-            DISPLAYSURF.blit(cover, (0, 0))
-            DISPLAYSURF.blit(pausebutton, (25,25))
-            writescreen('Resume',(25,50))
-            writescreen('Save',(25,75))
-            writescreen('Load',(25,100))
-            writescreen('Options',(25,125))
-            writescreen('Quit',(25,150))
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('pause_menu_screen'), (0,0))
 
             if selected is 6:
                 selected = 1
@@ -129,15 +128,15 @@ while True: # Main loop
                 selected = 5
                 
             if selected is 1:
-                DISPLAYSURF.blit(FONT.render('Resume',    True, (255, 140, 0)), (25, 50))
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_resume'), (0, 0))
             if selected is 2:
-                DISPLAYSURF.blit(FONT.render('Save',        True, (255, 140, 0)), (25, 75))
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_save'), (0, 0))
             if selected is 3:
-                DISPLAYSURF.blit(FONT.render('Load',     True, (255, 140, 0)), (25, 100))
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_load'), (0, 0))
             if selected is 4:
-                DISPLAYSURF.blit(FONT.render('Options',        True, (255, 140, 0)), (25, 125))
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_options'), (0, 0))
             if selected is 5:
-                DISPLAYSURF.blit(FONT.render('Quit',        True, (255, 140, 0)), (25, 150))
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_quit'), (0, 0))
 
             if event.type is KEYDOWN and event.key is K_RETURN:
                 if selected is 1:
@@ -153,27 +152,40 @@ while True: # Main loop
                     pygame.quit()
                     sys.exit()
 
-            if event.type is KEYDOWN and event.key is K_s:
+            if event.type is KEYDOWN and (event.key == K_DOWN or event.key == K_RIGHT):
                 selected = selected + 1
-            if event.type is KEYDOWN and event.key is K_w:
+            if event.type is KEYDOWN and (event.key == K_UP or event.key == K_LEFT):
                 selected = selected - 1
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        if gamemode is GameMode.error:
-            DISPLAYSURF.blit(cover, (0, 0))
-
-            # --STUB-- If a fatal error occurs, this will be like the
-            # blue screen of death or something, telling you what's up,
-            # throwing some error codes and dumping it to a file & etc.
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.playing:
-            gamemsg = game.start()
-            if gamemsg is 'PAUSE':
-                gamemode = GameMode.paused
-            elif gamemsg is 'DIE':
-                gamemode = GameMode.gameover
+            try:
+                gamemsg = game.start()
+                if gamemsg is 'PAUSE':
+                    gamemode = GameMode.paused
+                elif gamemsg is 'DIE':
+                    gamemode = GameMode.gameover
+            except IOError:
+                DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+                writescreen('File read error. IO.',(25,50))
+            except ValueError:
+                DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+                writescreen('File read error. Value.',(25,50))
+            except ImportError:
+                DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+                writescreen('Module import error.',(25,50))
+            except EOFError:
+                DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+                writescreen('File read error. EOF.',(25,50))
+            except KeyboardInterrupt:
+                DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+                writescreen('Operation cancel error.',(25,50))
+            except:
+                DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+                writescreen('Unknown error.',(25,50))
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if gamemode is GameMode.gameover:
-            DISPLAYSURF.blit(gameoverscreen, (0,0))
+            DISPLAYSURF.blit(getMenuAsset('gameoverscreen'), (0,0))
             writescreen('Yes',(25,175))
             writescreen('No',(25,200))
             if event.type is KEYDOWN and event.key is K_RETURN:
