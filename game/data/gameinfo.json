@@ -1,9 +1,0 @@
-{
-"name" : "Cataclysm",
-"cover" : "../assets/misc/cover.png",
-
-"icon" : "../assets/misc/icon.png",
-
-"pause" : "../assets/misc/pause.png",
-"gameover" : "../assets/misc/gameover.png"
-}

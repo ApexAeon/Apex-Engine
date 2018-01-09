@@ -1,0 +1,162 @@
+import pygame, sys
+from pygame.locals import *
+import json
+import game
+from common import DISPLAYSURF
+from common import FONT
+menuAssets = {}
+def loadMenuAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
+    assetList = json.loads(open('../game/metadata/menu_asset_list.json').read())
+    for pair in assetList:
+        try:
+            menuAssets[pair[0]] = pygame.image.load(pair[1])
+        except:
+            menuAssets[pair[0]] = pygame.Surface((25, 25))
+def getMenuAsset(name): # Get an already loaded asset, if asset not found, replace with error texture.
+    if name in menuAssets:
+        return menuAssets[name]
+    else:
+        return pygame.Surface((25, 25))
+def loadMenuAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
+    try:
+        return pygame.image.load(filename)
+    except:
+        return pygame.Surface((25, 25))
+paused = False
+mode = 'main'
+selected = 1
+info = json.loads(open('../game/metadata/info.json','r').read())
+pygame.init()
+DISPLAYSURF = pygame.display.set_mode((828, 640))
+pygame.display.set_caption(info['name'])
+pygame.display.set_icon(getMenuAsset('icon'))
+
+FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
+
+while True: # Main loop
+    for event in pygame.event.get():
+        if event.type is QUIT:
+            pygame.quit()
+            sys.exit()
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if mode == 'main': # Code for the main menu. 
+            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+            if selected is 5:
+                selected = 1
+            if selected is 0:
+                selected = 4
+            if selected is 1:
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_play'), (0, 0))
+            if selected is 2:
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_load'), (0, 0))
+            if selected is 3:
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_options'), (0, 0))
+            if selected is 4:
+                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_quit'), (0, 0))
+            if event.type is KEYDOWN and event.key is K_RETURN:
+                if selected is 1:
+                    mode = 'playing'
+                if selected is 2:
+                    mode = 'load'
+                if selected is 3:
+                    mode = 'options'
+                if selected is 4:
+                    pygame.quit()
+                    sys.exit()
+            if event.type is KEYDOWN and (event.key == K_DOWN or event.key == K_RIGHT):
+                selected = selected + 1
+            if event.type is KEYDOWN and (event.key == K_UP or event.key == K_LEFT):
+                selected = selected - 1
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if mode == 'load':
+            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+            game.setGamestate(json.loads(open('../data/save/save.json','r').read()))
+            mode = 'playing'
+            paused = False
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if mode == 'save':
+            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+            open('../data/save/save.json','w').truncate()
+            open('../data/save/save.json','w').write(json.dumps(game.getGamestate()))
+            if paused:
+                mode = 'paused'
+            else:
+                mode = 'main'
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if mode == 'options':
+            DISPLAYSURF.blit(getMenuAsset(getMenuAsset('main_menu_screen')), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset(getMenuAsset('options_menu_screen')), (0, 0))
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if mode == 'paused':
+            paused = True
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('pause_menu_screen'), (0,0))
+            if selected is 6:
+                selected = 1
+            if selected is 0:
+                selected = 5
+            if selected is 1:
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_resume'), (0, 0))
+            if selected is 2:
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_save'), (0, 0))
+            if selected is 3:
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_load'), (0, 0))
+            if selected is 4:
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_options'), (0, 0))
+            if selected is 5:
+                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_quit'), (0, 0))
+            if event.type is KEYDOWN and event.key is K_RETURN:
+                if selected is 1:
+                    mode = 'playing'
+                    paused = False
+                if selected is 2:
+                    mode = 'save'
+                if selected is 3:
+                    mode = 'load'
+                if selected is 4:
+                    mode = 'options'
+                if selected is 5:
+                    pygame.quit()
+                    sys.exit()
+            if event.type is KEYDOWN and (event.key == K_DOWN or event.key == K_RIGHT):
+                selected = selected + 1
+            if event.type is KEYDOWN and (event.key == K_UP or event.key == K_LEFT):
+                selected = selected - 1
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if mode == 'playing':
+            gamemsg = game.start()
+            if gamemsg is 'PAUSE':
+                mode = 'paused'
+            elif gamemsg is 'DIE':
+                mode = 'gameover'
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if mode == 'gameover':
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('game_over_screen'), (0,0))
+            if event.type is KEYDOWN and event.key is K_RETURN:
+                if selected is 1:
+                    mode = 'playing'
+                if selected is 2:
+                    pygame.quit()
+                    sys.exit()
+            if event.type is KEYDOWN and event.key is K_s:
+                selected = selected + 1
+            if event.type is KEYDOWN and event.key is K_w:
+                selected = selected - 1
+            if selected is 3:
+                selected = 1
+            if selected is 0:
+                selected = 2
+            if selected is 1:
+                DISPLAYSURF.blit(getMenuAsset('game_over_screen_selected_yes'), (0, 0))
+            if selected is 2:
+                DISPLAYSURF.blit(getMenuAsset('game_over_screen_selected_no'), (0, 0))   
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        pygame.display.update()
+#            somebody once told me the world was macoroni
+#            so i took a bite out of a tree
+#            it tasted pretty funny
+#            so i spit it at a bunny
+            
+            
