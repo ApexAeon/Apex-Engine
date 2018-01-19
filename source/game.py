@@ -17,6 +17,7 @@ masks = {}
 level = {}
 assetlist = {}
 data = {}
+options = json.loads(open('../data/options.json').read())
 
 def trigger(name):
     for entity in entities:
@@ -78,13 +79,13 @@ def loadLevel():
     data = json.loads(open('../game/maps/' + gamestate['lvl'] + '/data.json').read())
     masks['level'] = pygame.mask.from_surface(loadAsset('../game/maps/' + gamestate['lvl'] + '/walls.png'))
     masks['player'] = pygame.mask.from_surface(loadAsset('../game/assets/sprites/player/hitbox.png'))
-    gamestate['levelMode'] = data['levelMode']
+    gamestate['level_mode'] = data['level_mode']
 def start():
-#
-# Main Game Loop
-#
+
+    # Main Game Loop
+
     while True:
-        timeStart = time.process_time() # Used to facilitate timing and FPS, see bottom of loop for more info.
+        timeStart = time.process_time() # Maintain constant framerate.
         DISPLAYSURF.blit(getLevel('bg'), (0,0))
         DISPLAYSURF.blit(getLevel('visual'), (0,0))
         DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
@@ -92,133 +93,94 @@ def start():
         DISPLAYSURF.blit(getLevel('fg'), (0,0))
         if not gamestate['isMoving']:
             assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle')
-#
-# Event Processing
-#
+
+        # Event Processing
+
         for event in pygame.event.get():
             if event.type is QUIT:
                pygame.quit()
                sys.exit()
             if event.type is KEYDOWN and event.key is K_ESCAPE:
                 return 'PAUSE'
+
+            # Handle inputs.
             
-            if event.type is KEYDOWN and event.key is K_w:
-                gamestate['isMovingUp'] = True
-                if gamestate['facing'] == 'e':
-                    gamestate['facing'] = 'ne'
-                elif gamestate['facing'] == 'w':
-                    gamestate['facing'] = 'nw'
-                else:
-                    gamestate['facing'] = 'n'
-                gamestate['isMoving'] = True
-
-            if event.type is KEYDOWN and event.key is K_a:
-                gamestate['isMovingLeft'] = True
-                if gamestate['facing'] == 'n':
-                    gamestate['facing'] = 'nw'
-                elif gamestate['facing'] == 's':
-                    gamestate['facing'] = 'sw'
-                else:
-                    gamestate['facing'] = 'w'
-                gamestate['isMoving'] = True
-
-            if event.type is KEYDOWN and event.key is K_s:
-                gamestate['isMovingDown'] = True
-                if gamestate['facing'] == 'e':
-                    gamestate['facing'] = 'se'
-                elif gamestate['facing'] == 'w':
-                    gamestate['facing'] = 'sw'
-                else:
-                    gamestate['facing'] = 's'
-                gamestate['isMoving'] = True
-
-            if event.type is KEYDOWN and event.key is K_d:
-                gamestate['isMovingRight'] = True
-                if gamestate['facing'] == 'n':
-                    gamestate['facing'] = 'ne'
-                elif gamestate['facing'] == 's':
-                    gamestate['facing'] = 'se'
-                else:
-                    gamestate['facing'] = 'e'
-                gamestate['isMoving'] = True
+            if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_north']:
+                gamestate['action_north'] = True
+            if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_west']:
+                gamestate['action_west'] = True
+            if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_south']:
+                gamestate['action_south'] = True
+            if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_east']:
+                gamestate['action_east'] = True
                 
-            if event.type is KEYDOWN and event.key is K_SPACE:
-                gamestate['isJumping'] = True
+            if event.type is KEYUP and pygame.key.name(event.key) is options['keybinds']['action_north']:
+                gamestate['action_north'] = False
+            if event.type is KEYUP and pygame.key.name(event.key) is options['keybinds']['action_west']:
+                gamestate['action_west'] = False
+            if event.type is KEYUP and pygame.key.name(event.key) is options['keybinds']['action_south']:
+                gamestate['action_south'] = False
+            if event.type is KEYUP and pygame.key.name(event.key) is options['keybinds']['action_east']:
+                gamestate['action_east'] = False
                 
-            if event.type is KEYUP and event.key is K_w:
-                gamestate['isMovingUp'] = False
-            if event.type is KEYUP and event.key is K_a:
-                gamestate['isMovingLeft'] = False
-            if event.type is KEYUP and event.key is K_s:
-                gamestate['isMovingDown'] = False
-            if event.type is KEYUP and event.key is K_d:
-                gamestate['isMovingRight'] = False
-#
-# Collision Detection and Movement
-#
-        if gamestate['isMovingUp'] and gamestate['velocity']['north'] != gamestate['speed']:
-            if gamestate['velocity']['north'] + gamestate['acceleration'] > gamestate['speed']:
-                gamestate['velocity']['north'] = gamestate['speed']
+        # Accelerate and decelerate.
+        
+        if gamestate['action_north'] and gamestate['player']['velocity']['north'] != gamestate['max_velocity']:
+            if gamestate['player']['velocity']['north'] + gamestate['acceleration'] > gamestate['max_velocity']:
+                gamestate['player']['velocity']['north'] = gamestate['max_velocity']
             else:
-                gamestate['velocity']['north'] += gamestate['acceleration']
-        if gamestate['isMovingDown'] and gamestate['velocity']['south'] != gamestate['speed']:
-            if gamestate['velocity']['south'] + gamestate['acceleration'] > gamestate['speed']:
-                gamestate['velocity']['south'] = gamestate['speed']
+                gamestate['player']['velocity']['north'] += gamestate['acceleration']
+        if gamestate['action_south'] and gamestate['player']['velocity']['south'] != gamestate['max_velocity']:
+            if gamestate['player']['velocity']['south'] + gamestate['acceleration'] > gamestate['max_velocity']:
+                gamestate['player']['velocity']['south'] = gamestate['max_velocity']
             else:
-                gamestate['velocity']['south'] += gamestate['acceleration']
-        if gamestate['isMovingLeft'] and gamestate['velocity']['west'] != gamestate['speed']:
-            if gamestate['velocity']['west'] + gamestate['acceleration'] > gamestate['speed']:
-                gamestate['velocity']['west'] = gamestate['speed']
+                gamestate['player']['velocity']['south'] += gamestate['acceleration']
+        if gamestate['action_west'] and gamestate['player']['velocity']['west'] != gamestate['max_velocity']:
+            if gamestate['player']['velocity']['west'] + gamestate['acceleration'] > gamestate['max_velocity']:
+                gamestate['player']['velocity']['west'] = gamestate['max_velocity']
             else:
                 gamestate['velocity']['west'] += gamestate['acceleration']
-        if gamestate['isMovingRight'] and gamestate['velocity']['east'] != gamestate['speed']:
-            if gamestate['velocity']['east'] + gamestate['acceleration'] > gamestate['speed']:
-                gamestate['velocity']['east'] = gamestate['speed']
+        if gamestate['action_east'] and gamestate['player']['velocity']['east'] != gamestate['max_velocity']:
+            if gamestate['player']['velocity']['east'] + gamestate['acceleration'] > gamestate['max_velocity']:
+                gamestate['player']['velocity']['east'] = gamestate['max_velocity']
             else:
-                gamestate['velocity']['east'] += gamestate['acceleration']
+                gamestate['player']['velocity']['east'] += gamestate['acceleration']
 
-        if not gamestate['isMovingUp'] and gamestate['velocity']['north'] > 0:
-            if gamestate['velocity']['north'] - gamestate['acceleration'] >= 0:
-                gamestate['velocity']['north'] -= gamestate['acceleration']
+        if not gamestate['action_north'] and gamestate['player']['velocity']['north'] > 0:
+            if gamestate['player']['velocity']['north'] - gamestate['acceleration'] >= 0:
+                gamestate['player']['velocity']['north'] -= gamestate['acceleration']
             else:
-                gamestate['velocity']['north'] = 0                
-        if not gamestate['isMovingDown'] and gamestate['velocity']['south'] > 0:
-            if gamestate['velocity']['south'] - gamestate['acceleration'] >= 0:
-                gamestate['velocity']['south'] -= gamestate['acceleration']
+                gamestate['player']['velocity']['north'] = 0                
+        if not gamestate['action_south'] and gamestate['player']['velocity']['south'] > 0:
+            if gamestate['player']['velocity']['south'] - gamestate['acceleration'] >= 0:
+                gamestate['player']['velocity']['south'] -= gamestate['acceleration']
             else:
-                gamestate['velocity']['south'] = 0                
-        if not gamestate['isMovingLeft'] and gamestate['velocity']['west'] > 0:
-            if gamestate['velocity']['west'] - gamestate['acceleration'] >= 0:
-                gamestate['velocity']['west'] -= gamestate['acceleration']
+                gamestate['player']['velocity']['south'] = 0                
+        if not gamestate['action_west'] and gamestate['player']['velocity']['west'] > 0:
+            if gamestate['player']['velocity']['west'] - gamestate['acceleration'] >= 0:
+                gamestate['player']['velocity']['west'] -= gamestate['acceleration']
             else:
-                gamestate['velocity']['west'] = 0                
-        if not gamestate['isMovingRight'] and gamestate['velocity']['east'] > 0:
-            if gamestate['velocity']['east'] - gamestate['acceleration'] >= 0:
-                gamestate['velocity']['east'] -= gamestate['acceleration']
+                gamestate['player']['velocity']['west'] = 0                
+        if not gamestate['action_east'] and gamestate['player']['velocity']['east'] > 0:
+            if gamestate['player']['velocity']['east'] - gamestate['acceleration'] >= 0:
+                gamestate['player']['velocity']['east'] -= gamestate['acceleration']
             else:
-                gamestate['velocity']['east'] = 0
+                gamestate['player']['velocity']['east'] = 0
 
-        if gamestate['velocity']['north'] > 0 and getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) ) ) is 0:
-            gamestate['z'] = gamestate['z'] - gamestate['velocity']['north']
-        if gamestate['velocity']['west'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) ) ) is 0:
-            gamestate['x'] = gamestate['x'] - gamestate['velocity']['west']
-        if gamestate['velocity']['south'] > 0 and      getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['velocity']['south'])) ) ) is 0:
-            gamestate['z'] = gamestate['z'] + gamestate['velocity']['south'] 
-        if gamestate['velocity']['east'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) ) ) is 0:
-            gamestate['x'] = gamestate['x'] + gamestate['velocity']['east']
+        # Collision detection and final motion implementation.
 
-#
-# Debug Coordinates
-#       
-        DISPLAYSURF.blit(FONT.render('X: ' + str(gamestate['x']) + ' Y: ' + str(gamestate['y']) + ' Z: ' + str(gamestate['z']), True, (0, 128, 255), (0, 0, 0)), (25,25)) # Display current player position for dev use.
-        DISPLAYSURF.blit(FONT.render('Nvel: ' + str(gamestate['velocity']['north']) + ' Evel: ' + str(gamestate['velocity']['east']) + ' Svel: ' + str(gamestate['velocity']['south']) + ' Wvel: ' + str(gamestate['velocity']['west']), True, (0, 128, 255), (0, 0, 0)), (25,500)) # Display current player position for dev use.
+        if gamestate['player']['velocity']['north'] > 0 and getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) ) ) is 0:
+            gamestate['z'] = gamestate['z'] - gamestate['player']['velocity']['north']
+        if gamestate['player']['velocity']['west'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) ) ) is 0:
+            gamestate['x'] = gamestate['x'] - gamestate['player']['velocity']['west']
+        if gamestate['player']['velocity']['south'] > 0 and      getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['velocity']['south'])) ) ) is 0:
+            gamestate['z'] = gamestate['z'] + gamestate['player']['velocity']['south'] 
+        if gamestate['player']['velocity']['east'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) ) ) is 0:
+            gamestate['x'] = gamestate['x'] + gamestate['player']['velocity']['east']
 
-#
-# Animations
-#
-
-        
-        while True: # Delays time and makes sure a certain amount has passed since the last tick. Prevents crazy FPS and weird timing.
+        # Maintain constant framerate.
+ 
+        while True: 
             if time.process_time() - timeStart > 0.03: #0.03
                 pygame.display.update()
                 break

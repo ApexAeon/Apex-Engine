@@ -1,7 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 import json
-import game
+# import game
 from common import DISPLAYSURF
 from common import FONT
 menuAssets = {}
@@ -9,9 +9,9 @@ def loadMenuAssets(): # Attempts to load all assets listed in assets.json into t
     assetList = json.loads(open('../game/metadata/menu_asset_list.json').read())
     for pair in assetList:
         try:
-            menuAssets[pair[0]] = pygame.image.load(pair[1])
+            menuAssets[pair] = pygame.image.load('../game/assets/' + assetList[pair])
         except:
-            menuAssets[pair[0]] = pygame.Surface((25, 25))
+            menuAssets[pair] = pygame.Surface((25, 25))
 def getMenuAsset(name): # Get an already loaded asset, if asset not found, replace with error texture.
     if name in menuAssets:
         return menuAssets[name]
@@ -22,6 +22,7 @@ def loadMenuAsset(filename): # Attempts to load a single image, if an error occu
         return pygame.image.load(filename)
     except:
         return pygame.Surface((25, 25))
+loadMenuAssets()
 paused = False
 mode = 'main'
 selected = 1
@@ -30,7 +31,7 @@ pygame.init()
 DISPLAYSURF = pygame.display.set_mode((828, 640))
 pygame.display.set_caption(info['name'])
 pygame.display.set_icon(getMenuAsset('icon'))
-
+options = json.loads(open('../data/options.json','r').read())
 FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
 
 while True: # Main loop
@@ -40,7 +41,7 @@ while True: # Main loop
             sys.exit()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'main': # Code for the main menu. 
-            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
             if selected is 5:
                 selected = 1
             if selected is 0:
@@ -69,13 +70,13 @@ while True: # Main loop
                 selected = selected - 1
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'load':
-            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
             game.setGamestate(json.loads(open('../data/save/save.json','r').read()))
             mode = 'playing'
             paused = False
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'save':
-            DISPLAYSURF.blit(getMenuAsset('cover'), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
             open('../data/save/save.json','w').truncate()
             open('../data/save/save.json','w').write(json.dumps(game.getGamestate()))
             if paused:
@@ -84,9 +85,38 @@ while True: # Main loop
                 mode = 'main'
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'options':
-            DISPLAYSURF.blit(getMenuAsset(getMenuAsset('main_menu_screen')), (0, 0))
-            DISPLAYSURF.blit(getMenuAsset(getMenuAsset('options_menu_screen')), (0, 0))
-
+            temp_counter = 0
+            options_list = []
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getMenuAsset('options_menu_screen'), (0, 0))
+            for keybind in options['keybinds']:
+                options_list.append([keybind, options['keybinds'][keybind]])
+                temp_counter += 1
+                DISPLAYSURF.blit(FONT.render(keybind, False, (0,0,0) ), (25,25*(temp_counter+1)) )
+                DISPLAYSURF.blit(FONT.render(options_list[temp_counter - 1][1], False, (0,0,0) ), (500,25*(temp_counter+1)) )
+            if event.type is KEYDOWN and event.key == K_DOWN:
+                selected = selected + 1
+            if event.type is KEYDOWN and event.key == K_UP:
+                selected = selected - 1
+            if selected is 0:
+                selected = len(options_list)
+            if selected is len(options_list) + 1:
+                selected = 1
+            DISPLAYSURF.blit(FONT.render(options_list[selected-1][0], False, (0,0,255) ), (25,25*(selected+1)) )
+            DISPLAYSURF.blit(FONT.render(options_list[selected-1][1], False, (0,0,255) ), (500,25*(selected+1)) )
+            if event.type is KEYDOWN and event.key == K_RIGHT:
+                DISPLAYSURF.blit(FONT.render(options_list[selected-1][0], False, (255,0,0) ), (25,25*(selected+1)) )
+                DISPLAYSURF.blit(FONT.render(options_list[selected-1][1], False, (255,0,0) ), (500,25*(selected+1)) )
+                pygame.display.update()
+                recording = True
+                while recording:
+                    for event in pygame.event.get():
+                        if event.type is KEYDOWN:
+                            options_list[selected-1][1] = pygame.key.name(event.key)
+                            recording = False
+                for pair in options_list:
+                    options['keybinds'][pair[0]] = pair[1]
+                open('../data/options.json','w').write(json.dumps(options))
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'paused':
             paused = True
