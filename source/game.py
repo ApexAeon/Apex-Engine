@@ -16,7 +16,7 @@ reslist = []
 masks = {}
 level = {}
 assetlist = {}
-data = {}
+data = {} 
 options = json.loads(open('../data/options.json').read())
 
 def trigger(name):
@@ -41,9 +41,10 @@ def getAsset(name): # Get an already loaded asset, if asset not found, replace w
 def getMask(name):
     if name in masks:
         return masks[name]
+        print('Done!')
     else:
         return pygame.mask.from_surface(pygame.Surface((25, 25)))
-    
+        print('Failed!')
 def loadAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
     try:
         return pygame.image.load(filename)
@@ -52,7 +53,8 @@ def loadAsset(filename): # Attempts to load a single image, if an error occurs, 
 def getLevel(name):
     if name in level:
         return level[name]
-            
+    else:
+        return pygame.Surface((25, 25))   
 def getGamestate(): # Will be used for saving gamestate.
     return gamestate
 def setGamestate(gamestatein): # Will be used for loading gamestate.
@@ -69,7 +71,7 @@ def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates
         return (z - y) * 4
 def loadLevel():
     level['visual'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/visual.png')
-    level['background'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/walls.png')
+    level['walls'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/walls.png')
     level['foreground'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/foreground.png')
     level['cover'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/cover.png')
     entity_counter = 0
@@ -77,7 +79,7 @@ def loadLevel():
         entities[entity_counter] = objects.spawn(entity)
         entity_counter += 1
     data = json.loads(open('../game/maps/' + gamestate['lvl'] + '/data.json').read())
-    masks['level'] = pygame.mask.from_surface(loadAsset('../game/maps/' + gamestate['lvl'] + '/walls.png'))
+    masks['level'] = pygame.mask.from_surface(getLevel('walls'))
     masks['player'] = pygame.mask.from_surface(loadAsset('../game/assets/sprites/player/hitbox.png'))
     gamestate['level_mode'] = data['level_mode']
 def start():
@@ -139,7 +141,7 @@ def start():
             if gamestate['player']['velocity']['west'] + gamestate['acceleration'] > gamestate['max_velocity']:
                 gamestate['player']['velocity']['west'] = gamestate['max_velocity']
             else:
-                gamestate['velocity']['west'] += gamestate['acceleration']
+                gamestate['player']['velocity']['west'] += gamestate['acceleration']
         if gamestate['action_east'] and gamestate['player']['velocity']['east'] != gamestate['max_velocity']:
             if gamestate['player']['velocity']['east'] + gamestate['acceleration'] > gamestate['max_velocity']:
                 gamestate['player']['velocity']['east'] = gamestate['max_velocity']
@@ -169,13 +171,13 @@ def start():
 
         # Collision detection and final motion implementation.
 
-        if gamestate['player']['velocity']['north'] > 0 and getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['velocity']['north'])) ) ) is 0:
+        if gamestate['player']['velocity']['north'] > 0 and getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) ) ) is 0:
             gamestate['z'] = gamestate['z'] - gamestate['player']['velocity']['north']
-        if gamestate['player']['velocity']['west'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['velocity']['west'],0,gamestate['z'])) ) ) is 0:
+        if gamestate['player']['velocity']['west'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) ) ) is 0:
             gamestate['x'] = gamestate['x'] - gamestate['player']['velocity']['west']
-        if gamestate['player']['velocity']['south'] > 0 and      getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['velocity']['south'])) ) ) is 0:
+        if gamestate['player']['velocity']['south'] > 0 and      getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) ) ) is 0:
             gamestate['z'] = gamestate['z'] + gamestate['player']['velocity']['south'] 
-        if gamestate['player']['velocity']['east'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['velocity']['east'],0,gamestate['z'])) ) ) is 0:
+        if gamestate['player']['velocity']['east'] > 0 and       getMask('level').overlap_area( getMask('player') , ( math.floor(calcX(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) ) ) is 0:
             gamestate['x'] = gamestate['x'] + gamestate['player']['velocity']['east']
 
         # Maintain constant framerate.

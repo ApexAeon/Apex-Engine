@@ -1,7 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 import json
-# import game
+import game
 from common import DISPLAYSURF
 from common import FONT
 menuAssets = {}
