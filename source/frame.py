@@ -94,6 +94,11 @@ while True: # Main loop
                 temp_counter += 1
                 DISPLAYSURF.blit(FONT.render(keybind, False, (0,0,0) ), (25,25*(temp_counter+1)) )
                 DISPLAYSURF.blit(FONT.render(options_list[temp_counter - 1][1], False, (0,0,0) ), (500,25*(temp_counter+1)) )
+            if event.type is KEYDOWN and event.key == K_ESCAPE:
+                if paused:
+                    mode = 'paused'
+                else:
+                    mode = 'main'
             if event.type is KEYDOWN and event.key == K_DOWN:
                 selected = selected + 1
             if event.type is KEYDOWN and event.key == K_UP:
