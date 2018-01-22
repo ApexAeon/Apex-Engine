@@ -80,6 +80,7 @@ def loadLevel():
     masks['player'] = pygame.mask.from_surface(getAsset('player_hitbox'))
     gamestate['level_mode'] = data['level_mode']
 def start():
+    options = json.loads(open('../data/options.json').read())
 
     # Main Game Loop
 
@@ -87,7 +88,6 @@ def start():
         timeStart = time.process_time() # Maintain constant framerate.
         DISPLAYSURF.blit(getLevel('visual'), (0,0))
         DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
-        DISPLAYSURF.blit(getLevel('walls'), (0,0))        
         if not gamestate['isMoving']:
             assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle')
 
@@ -168,17 +168,14 @@ def start():
 
         if gamestate['player']['velocity']['north'] > 0 and masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) ) ) == 0:
             gamestate['z'] = gamestate['z'] - gamestate['player']['velocity']['north']
-            print('Moving!')
         if gamestate['player']['velocity']['west'] > 0 and       masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) ) ) == 0:
             gamestate['x'] = gamestate['x'] - gamestate['player']['velocity']['west']
-            print('Moving!')
         if gamestate['player']['velocity']['south'] > 0 and      masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) ) ) == 0:
             gamestate['z'] = gamestate['z'] + gamestate['player']['velocity']['south']
-            print('Moving!')
         if gamestate['player']['velocity']['east'] > 0 and       masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) ) ) == 0:
             gamestate['x'] = gamestate['x'] + gamestate['player']['velocity']['east']
-            print('Moving!')
 
+        print(gamestate['x'],gamestate['z'])
 
         # Maintain constant framerate.
  

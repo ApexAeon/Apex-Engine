@@ -28,11 +28,12 @@ mode = 'main'
 selected = 1
 info = json.loads(open('../game/metadata/info.json','r').read())
 pygame.init()
-DISPLAYSURF = pygame.display.set_mode((828, 640))
+DISPLAYSURF = pygame.display.set_mode((1024, 1024),pygame.FULLSCREEN)
 pygame.display.set_caption(info['name'])
 pygame.display.set_icon(getMenuAsset('icon'))
 options = json.loads(open('../data/options.json','r').read())
 FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
+
 
 while True: # Main loop
     for event in pygame.event.get():
