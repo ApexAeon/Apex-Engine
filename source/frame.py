@@ -28,7 +28,7 @@ mode = 'main'
 selected = 1
 info = json.loads(open('../game/metadata/info.json','r').read())
 pygame.init()
-DISPLAYSURF = pygame.display.set_mode((1024, 1024),pygame.FULLSCREEN)
+DISPLAYSURF = pygame.display.set_mode((960, 540),pygame.FULLSCREEN)
 pygame.display.set_caption(info['name'])
 pygame.display.set_icon(getMenuAsset('icon'))
 options = json.loads(open('../data/options.json','r').read())

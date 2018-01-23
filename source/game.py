@@ -16,10 +16,88 @@ level = {}
 assetlist = {}
 data = {} 
 options = json.loads(open('../data/options.json').read())
+last_id = -1
+class generic():
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        print('Hello, World!')
+    def trigger(self):
+        print('TRIGGERED! REEEEEEE!')
+class tele(): # On a trigger input, they are teleported to another area of the same or different room.
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        print('Object "' + self.data['name'] + '" # ' + str(self.uid) + ' of type "tele" was ticked!')
+    def trigger(self):
+        gamestate['x'] = self.data['x']
+        gamestate['y'] = self.data['y']
+        gamestate['z'] = self.data['z']
+class pickup(): # On player contact, executes some action such as putting an item into the players inventory, then becomes inactive and dissapears.
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        print('TRIGGERED! REEEEEEE!')
+    def trigger(self):
+        print('TRIGGERED! REEEEEEE!')
 
-def trigger(name):
+class prop(): # Something that displays a sprite.
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        print('TRIGGERED! REEEEEEE!')
+    def trigger(self):
+        print('TRIGGERED! REEEEEEE!')
+class change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        print('TRIGGERED! REEEEEEE!')
+    def trigger(self):
+        print('TRIGGERED! REEEEEEE!')
+class Trigger(): # On arbitrary met condition, trigger another object's trigerable input.
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        print('Object "' + self.data['name'] + '" # ' + str(self.uid) + ' of type "trigger" was ticked!')
+        if gamestate['x'] >= self.data['x_minimum'] and gamestate['y'] >= self.data['y_minimum'] and gamestate['z'] >= self.data['z_minimum'] and gamestate['x'] <= self.data['x_maximum'] and gamestate['y'] <= self.data['y_maximum'] and gamestate['z'] <= self.data['z_maximum']:
+            triggermain(self.data['output'])
+    def trigger(self):
+        print('TRIGGERED! REEEEEEE!')
+class spawner(): # On a trigger input, creates a new entity.
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        print('TRIGGERED! REEEEEEE!')
+    def trigger(self):
+        print('TRIGGERED! REEEEEEE!')
+def spawn(data):
+    if data['type'] == 'generic':
+        return generic(data, last_id + 1)
+    elif data['type'] == 'tele':
+        return tele(data, last_id + 1)
+    elif data['type'] == 'pickup':
+        return pickup(data, last_id + 1)
+    elif data['type'] == 'prop':
+        return prop(data, last_id + 1)
+    elif data['type'] == 'change':
+        return change(data, last_id + 1)
+    elif data['type'] == 'trigger':
+        return Trigger(data, last_id + 1)
+    elif data['type'] == 'spawner':
+        return spawner(data, last_id + 1)
+
+
+def triggermain(name):
     for entity in entities:
-        if entity['name'] == name:
+        if entity.data['name'] == name:
             entity.trigger()
     
 def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
@@ -71,10 +149,8 @@ def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates
 def loadLevel():
     level['visual'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/visual.png')
     level['walls'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/walls.png')
-    entity_counter = 0
     for entity in json.loads(open('../game/maps/' + gamestate['lvl'] + '/entities.json').read()):
-        entities[entity_counter] = objects.spawn(entity)
-        entity_counter += 1
+        entities.append(spawn(entity))
     data = json.loads(open('../game/maps/' + gamestate['lvl'] + '/data.json').read())
     masks['level'] = pygame.mask.from_surface(getLevel('walls'))
     masks['player'] = pygame.mask.from_surface(getAsset('player_hitbox'))
@@ -85,6 +161,8 @@ def start():
     # Main Game Loop
 
     while True:
+        for entity in entities:
+            entity.tick()
         timeStart = time.process_time() # Maintain constant framerate.
         DISPLAYSURF.blit(getLevel('visual'), (0,0))
         DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
@@ -104,12 +182,16 @@ def start():
             
             if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_north']:
                 gamestate['action_north'] = True
+                gamestate['player']['direction'] = 'north'
             if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_west']:
                 gamestate['action_west'] = True
+                gamestate['player']['direction'] = 'west'
             if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_south']:
                 gamestate['action_south'] = True
+                gamestate['player']['direction'] = 'south'
             if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_east']:
                 gamestate['action_east'] = True
+                gamestate['player']['direction'] = 'east'
                 
             if event.type is KEYUP and pygame.key.name(event.key) is options['keybinds']['action_north']:
                 gamestate['action_north'] = False
@@ -178,7 +260,7 @@ def start():
         print(gamestate['x'],gamestate['z'])
 
         # Maintain constant framerate.
- 
+
         while True: 
             if time.process_time() - timeStart > 0.03: #0.03
                 pygame.display.update()
