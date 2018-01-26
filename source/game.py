@@ -17,7 +17,7 @@ assetlist = {}
 data = {} 
 options = json.loads(open('../data/options.json').read())
 last_id = -1
-class generic():
+class Generic():
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
@@ -25,7 +25,7 @@ class generic():
         print('Hello, World!')
     def trigger(self):
         print('TRIGGERED! REEEEEEE!')
-class tele(): # On a trigger input, they are teleported to another area of the same or different room.
+class Tele(): # On a trigger input, they are teleported to another area of the same or different room.
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
@@ -35,7 +35,7 @@ class tele(): # On a trigger input, they are teleported to another area of the s
         gamestate['x'] = self.data['x']
         gamestate['y'] = self.data['y']
         gamestate['z'] = self.data['z']
-class pickup(): # On player contact, executes some action such as putting an item into the players inventory, then becomes inactive and dissapears.
+class Pickup(): # On player contact, executes some action such as putting an item into the players inventory, then becomes inactive and dissapears.
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
@@ -44,7 +44,7 @@ class pickup(): # On player contact, executes some action such as putting an ite
     def trigger(self):
         print('TRIGGERED! REEEEEEE!')
 
-class prop(): # Something that displays a sprite.
+class Prop(): # Something that displays a sprite.
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
@@ -52,7 +52,7 @@ class prop(): # Something that displays a sprite.
         print('TRIGGERED! REEEEEEE!')
     def trigger(self):
         print('TRIGGERED! REEEEEEE!')
-class change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
+class Change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
@@ -80,19 +80,19 @@ class spawner(): # On a trigger input, creates a new entity.
         print('TRIGGERED! REEEEEEE!')
 def spawn(data):
     if data['type'] == 'generic':
-        return generic(data, last_id + 1)
+        return Generic(data, last_id + 1)
     elif data['type'] == 'tele':
-        return tele(data, last_id + 1)
+        return Tele(data, last_id + 1)
     elif data['type'] == 'pickup':
-        return pickup(data, last_id + 1)
+        return Pickup(data, last_id + 1)
     elif data['type'] == 'prop':
-        return prop(data, last_id + 1)
+        return Prop(data, last_id + 1)
     elif data['type'] == 'change':
-        return change(data, last_id + 1)
+        return Change(data, last_id + 1)
     elif data['type'] == 'trigger':
         return Trigger(data, last_id + 1)
     elif data['type'] == 'spawner':
-        return spawner(data, last_id + 1)
+        return Spawner(data, last_id + 1)
 
 
 def triggermain(name):

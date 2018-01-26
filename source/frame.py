@@ -28,7 +28,7 @@ mode = 'main'
 selected = 1
 info = json.loads(open('../game/metadata/info.json','r').read())
 pygame.init()
-DISPLAYSURF = pygame.display.set_mode((960, 540),pygame.FULLSCREEN)
+DISPLAYSURF = pygame.display.set_mode((1152, 648),pygame.FULLSCREEN)
 pygame.display.set_caption(info['name'])
 pygame.display.set_icon(getMenuAsset('icon'))
 options = json.loads(open('../data/options.json','r').read())
@@ -88,7 +88,6 @@ while True: # Main loop
         if mode == 'options':
             temp_counter = 0
             options_list = []
-            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
             DISPLAYSURF.blit(getMenuAsset('options_menu_screen'), (0, 0))
             for keybind in options['keybinds']:
                 options_list.append([keybind, options['keybinds'][keybind]])
@@ -126,7 +125,6 @@ while True: # Main loop
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'paused':
             paused = True
-            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
             DISPLAYSURF.blit(getMenuAsset('pause_menu_screen'), (0,0))
             if selected is 6:
                 selected = 1
@@ -161,6 +159,7 @@ while True: # Main loop
                 selected = selected - 1
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'playing':
+            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
             gamemsg = game.start()
             if gamemsg is 'PAUSE':
                 mode = 'paused'
