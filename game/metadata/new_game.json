@@ -10,6 +10,11 @@
 "max_velocity":1,
 "acceleration":0.2,
 "player":{
+	"health":100,
+	"max_health":100,
+	"regen_speed":1,
+	"armor":0,
+	"armor_percent":0,
 	"direction":"north",
 	"velocity":{
 		"west":0,

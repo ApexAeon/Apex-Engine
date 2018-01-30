@@ -22,9 +22,9 @@ class Generic():
         self.data = data
         self.uid = uid
     def tick(self):
-        print('Hello, World!')
+        pass
     def trigger(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
 class Tele(): # On a trigger input, they are teleported to another area of the same or different room.
     def __init__(self, data, uid):
         self.data = data
@@ -40,26 +40,28 @@ class Pickup(): # On player contact, executes some action such as putting an ite
         self.data = data
         self.uid = uid
     def tick(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
     def trigger(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
 
 class Prop(): # Something that displays a sprite.
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
+        level['props']={data['prop']:{"sprite":loadAsset('../game/assets/props/'+data['prop']+'.png')}}
+        #level['props'][data[prop]]['hitbox'] = loadAsset(data[prop])
     def tick(self):
-        print('TRIGGERED! REEEEEEE!')
+        DISPLAYSURF.blit(getLevel('props')[self.data['prop']]['sprite'], (self.data['x'],self.data['y']))
     def trigger(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
 class Change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
     def tick(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
     def trigger(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
 class Trigger(): # On arbitrary met condition, trigger another object's trigerable input.
     def __init__(self, data, uid):
         self.data = data
@@ -69,15 +71,36 @@ class Trigger(): # On arbitrary met condition, trigger another object's trigerab
         if gamestate['x'] >= self.data['x_minimum'] and gamestate['y'] >= self.data['y_minimum'] and gamestate['z'] >= self.data['z_minimum'] and gamestate['x'] <= self.data['x_maximum'] and gamestate['y'] <= self.data['y_maximum'] and gamestate['z'] <= self.data['z_maximum']:
             triggermain(self.data['output'])
     def trigger(self):
-        print('TRIGGERED! REEEEEEE!')
-class spawner(): # On a trigger input, creates a new entity.
+        pass
+class Spawner(): # On a trigger input, creates a new entity.
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
     def tick(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
     def trigger(self):
-        print('TRIGGERED! REEEEEEE!')
+        pass
+class Hurt():
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        pass
+    def trigger(self):
+        if self.data['bypass']:
+            if self.data['set']:
+                gamestate['player']['health'] = self.data['health']
+            elif self.data['change']:
+                gamestate['player']['health'] -= self.data['health']
+        else:
+            gamestate['player']['armor'] -= gamestate['player']['armor_percent'] * self.data['health'] # Hit the armor.
+            gamestate['player']['health'] -= self.data['health'] - (gamestate['player']['armor_percent'] * self.data['health']) # Hit the player.
+            if gamestate['player']['armor'] < 0:
+                gamestate['player']['health'] += gamestate['player']['armor']
+                gamestate['player']['armor'] = 0
+        if gamestate['player']['health'] > gamestate['player']['max_health']:
+            gamestate['player']['health'] = gamestate['player']['max_health']
+        
 def spawn(data):
     if data['type'] == 'generic':
         return Generic(data, last_id + 1)
@@ -161,13 +184,13 @@ def start():
     # Main Game Loop
 
     while True:
-        for entity in entities:
-            entity.tick()
         timeStart = time.process_time() # Maintain constant framerate.
         DISPLAYSURF.blit(getLevel('visual'), (0,0))
         DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
         if not gamestate['isMoving']:
             assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle')
+        for entity in entities:
+            entity.tick()
 
         # Event Processing
 
@@ -268,10 +291,6 @@ def start():
 
 loadAssets()
 loadLevel()
-for mask in masks:
-    print(str(masks[mask].count()))
-
-
      
             
 
