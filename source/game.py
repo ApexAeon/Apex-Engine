@@ -172,6 +172,7 @@ def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates
 def loadLevel():
     level['visual'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/visual.png')
     level['walls'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/walls.png')
+    level['fg'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/fg.png')
     for entity in json.loads(open('../game/maps/' + gamestate['lvl'] + '/entities.json').read()):
         entities.append(spawn(entity))
     data = json.loads(open('../game/maps/' + gamestate['lvl'] + '/data.json').read())
@@ -187,6 +188,8 @@ def start():
         timeStart = time.process_time() # Maintain constant framerate.
         DISPLAYSURF.blit(getLevel('visual'), (0,0))
         DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
+        DISPLAYSURF.blit(getLevel('fg'), (0,0))
+
         if not gamestate['isMoving']:
             assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle')
         for entity in entities:
