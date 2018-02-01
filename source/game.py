@@ -51,7 +51,7 @@ class Prop(): # Something that displays a sprite.
         level['props']={data['prop']:{"sprite":loadAsset('../game/assets/props/'+data['prop']+'.png')}}
         #level['props'][data[prop]]['hitbox'] = loadAsset(data[prop])
     def tick(self):
-        DISPLAYSURF.blit(getLevel('props')[self.data['prop']]['sprite'], (self.data['x'],self.data['y']))
+        DISPLAYSURF.blit(getLevel('props')[self.data['prop']]['sprite'], (calcX(self.data['x'], 0, self.data['y']),calcY(self.data['x'], 0, self.data['y'])))
     def trigger(self):
         pass
 class Change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
@@ -61,7 +61,8 @@ class Change(): # On a trigger input, can change the state of itself or any othe
     def tick(self):
         pass
     def trigger(self):
-        pass
+        changeMain(self.data['output'], self.data['key'], self.data['value'])
+        
 class Trigger(): # On arbitrary met condition, trigger another object's trigerable input.
     def __init__(self, data, uid):
         self.data = data
@@ -69,7 +70,8 @@ class Trigger(): # On arbitrary met condition, trigger another object's trigerab
     def tick(self):
         print('Object "' + self.data['name'] + '" # ' + str(self.uid) + ' of type "trigger" was ticked!')
         if gamestate['x'] >= self.data['x_minimum'] and gamestate['y'] >= self.data['y_minimum'] and gamestate['z'] >= self.data['z_minimum'] and gamestate['x'] <= self.data['x_maximum'] and gamestate['y'] <= self.data['y_maximum'] and gamestate['z'] <= self.data['z_maximum']:
-            triggermain(self.data['output'])
+            triggerMain(self.data['output'])
+            print('yuh BRUV')
     def trigger(self):
         pass
 class Spawner(): # On a trigger input, creates a new entity.
@@ -87,6 +89,7 @@ class Hurt():
     def tick(self):
         pass
     def trigger(self):
+        print('hurt u')
         if self.data['bypass']:
             if self.data['set']:
                 gamestate['player']['health'] = self.data['health']
@@ -116,9 +119,14 @@ def spawn(data):
         return Trigger(data, last_id + 1)
     elif data['type'] == 'spawner':
         return Spawner(data, last_id + 1)
+    elif data['type'] == 'hurt':
+        return Hurt(data, last_id + 1)
+def changeMain(name, key, value):
+    for entity in entities:
+        if entity.data['name'] == name:
+            entity.data[key] = value
 
-
-def triggermain(name):
+def triggerMain(name):
     for entity in entities:
         if entity.data['name'] == name:
             entity.trigger()
@@ -185,16 +193,23 @@ def start():
     # Main Game Loop
 
     while True:
+        if gamestate['player']['health'] <= 0:
+            return "DIE"
+        
         timeStart = time.process_time() # Maintain constant framerate.
         DISPLAYSURF.blit(getLevel('visual'), (0,0))
         DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
         DISPLAYSURF.blit(getLevel('fg'), (0,0))
+        DISPLAYSURF.blit(FONT.render('Health: '+str(int(gamestate['player']['health']))+' Armor: '+str(int(gamestate['player']['armor'])), True, (0, 0, 255)), (0,0))
 
         if not gamestate['isMoving']:
             assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle')
         for entity in entities:
             entity.tick()
-
+        if gamestate['player']['health'] < gamestate['player']['max_health']:
+            gamestate['player']['health'] += gamestate['player']['regen_speed']
+        if gamestate['player']['health'] > gamestate['player']['max_health']:
+            gamestate['player']['health'] = gamestate['player']['max_health']
         # Event Processing
 
         for event in pygame.event.get():

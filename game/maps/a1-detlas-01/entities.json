@@ -1,10 +1,38 @@
 [
 	
 	{
+		"type":"trigger",
+		"name":"medkittrigger",
+		"x_minimum":90,
+		"y_minimum":90,
+		"z_minimum":90,
+		"x_maximum":110,
+		"y_maximum":110,
+		"z_maximum":110,
+		"output":"medkit"
+	},
+	{
+		"type":"hurt",
+		"name":"medkit",
+		"bypass":true,
+		"set":true,
+		"change":false,
+		"health":100
+	},
+	{
 		"type":"prop",
-		"name":"npc",
-		"x":0,
-		"y":0,
-		"prop":"RobedPC"
+		"name":"medkitprop",
+		"x":100,
+		"y":100,
+		"prop":"medkit"
+	},
+	{
+		"type":"change",
+		"name":"medkit",
+		"out":"medkitprop",
+		"key":"prop",
+		"value":"blank"
 	}
+	
+	
 ]

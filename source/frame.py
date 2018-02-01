@@ -159,6 +159,7 @@ while True: # Main loop
                 selected = selected - 1
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'playing':
+            selected = 1
             DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
             gamemsg = game.start()
             if gamemsg is 'PAUSE':
@@ -171,13 +172,13 @@ while True: # Main loop
             DISPLAYSURF.blit(getMenuAsset('game_over_screen'), (0,0))
             if event.type is KEYDOWN and event.key is K_RETURN:
                 if selected is 1:
-                    mode = 'playing'
+                    mode = 'main'
                 if selected is 2:
                     pygame.quit()
                     sys.exit()
-            if event.type is KEYDOWN and event.key is K_s:
+            if event.type is KEYDOWN and (event.key == K_DOWN or event.key == K_RIGHT):
                 selected = selected + 1
-            if event.type is KEYDOWN and event.key is K_w:
+            if event.type is KEYDOWN and (event.key == K_UP or event.key == K_LEFT):
                 selected = selected - 1
             if selected is 3:
                 selected = 1
