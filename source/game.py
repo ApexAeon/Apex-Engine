@@ -25,6 +25,28 @@ class Generic():
         pass
     def trigger(self):
         pass
+class Item():
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        pass
+    def trigger(self): # Add self to inventory.
+        if self.data['enabled']:
+            gamestate['player']['items'][self.data['name']] = self
+            self.data['enabled'] = False
+    def use(self):
+        for entity in self.data['entities']:
+        if entity.data['name'] == self.data['on_use']:
+            entity.trigger()
+    def equip(self):
+        for entity in self.data['entities']:
+        if entity.data['name'] == self.data['on_equip']:
+            entity.trigger()
+    def unequip(self):
+        for entity in self.data['entities']:
+        if entity.data['name'] == self.data['on_unequip']:
+            entity.trigger()
 class Tele(): # On a trigger input, they are teleported to another area of the same or different room.
     def __init__(self, data, uid):
         self.data = data
@@ -48,10 +70,9 @@ class Prop(): # Something that displays a sprite.
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
-        level['props']={data['prop']:{"sprite":loadAsset('../game/assets/props/'+data['prop']+'.png')}}
         #level['props'][data[prop]]['hitbox'] = loadAsset(data[prop])
     def tick(self):
-        DISPLAYSURF.blit(getLevel('props')[self.data['prop']]['sprite'], (calcX(self.data['x'], 0, self.data['y']),calcY(self.data['x'], 0, self.data['y'])))
+        DISPLAYSURF.blit(loadAsset('../game/assets/props/'+self.data['prop']+'.png'), (calcX(self.data['x'], 0, self.data['y']),calcY(self.data['x'], 0, self.data['y'])))
     def trigger(self):
         pass
 class Change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
@@ -61,6 +82,7 @@ class Change(): # On a trigger input, can change the state of itself or any othe
     def tick(self):
         pass
     def trigger(self):
+        print('Change entity triggered.')
         changeMain(self.data['output'], self.data['key'], self.data['value'])
         
 class Trigger(): # On arbitrary met condition, trigger another object's trigerable input.
@@ -68,10 +90,9 @@ class Trigger(): # On arbitrary met condition, trigger another object's trigerab
         self.data = data
         self.uid = uid
     def tick(self):
-        print('Object "' + self.data['name'] + '" # ' + str(self.uid) + ' of type "trigger" was ticked!')
         if gamestate['x'] >= self.data['x_minimum'] and gamestate['y'] >= self.data['y_minimum'] and gamestate['z'] >= self.data['z_minimum'] and gamestate['x'] <= self.data['x_maximum'] and gamestate['y'] <= self.data['y_maximum'] and gamestate['z'] <= self.data['z_maximum']:
             triggerMain(self.data['output'])
-            print('yuh BRUV')
+            print('Player is within the bounds of the trigger.')
     def trigger(self):
         pass
 class Spawner(): # On a trigger input, creates a new entity.
@@ -122,6 +143,7 @@ def spawn(data):
     elif data['type'] == 'hurt':
         return Hurt(data, last_id + 1)
 def changeMain(name, key, value):
+    print('bruv')
     for entity in entities:
         if entity.data['name'] == name:
             entity.data[key] = value

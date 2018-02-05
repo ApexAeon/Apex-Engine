@@ -4,10 +4,10 @@
 		"type":"trigger",
 		"name":"medkittrigger",
 		"x_minimum":90,
-		"y_minimum":90,
+		"y_minimum":0,
 		"z_minimum":90,
 		"x_maximum":110,
-		"y_maximum":110,
+		"y_maximum":0,
 		"z_maximum":110,
 		"output":"medkit"
 	},
@@ -29,9 +29,16 @@
 	{
 		"type":"change",
 		"name":"medkit",
-		"out":"medkitprop",
+		"output":"medkitprop",
 		"key":"prop",
 		"value":"blank"
+	},
+	{
+		"type":"change",
+		"name":"medkit",
+		"output":"medkittrigger",
+		"key":"y_minimum",
+		"value":1
 	}
 	
 	
