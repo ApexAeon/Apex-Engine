@@ -2,41 +2,53 @@
 	
 	{
 		"type":"trigger",
-		"name":"medkittrigger",
+		"name":"apple_trigger",
 		"x_minimum":90,
 		"y_minimum":0,
 		"z_minimum":90,
 		"x_maximum":110,
 		"y_maximum":0,
 		"z_maximum":110,
-		"output":"medkit"
+		"output":"apple"
 	},
 	{
-		"type":"hurt",
-		"name":"medkit",
-		"bypass":true,
-		"set":true,
-		"change":false,
-		"health":100
+		"enabled":true,
+		"on_use":"on_use",
+		"type":"item",
+		"name":"apple",
+		"image":"apple",
+		"equipped":false,
+		"equippable":false,
+		"entities":
+			[
+			{
+			"type":"hurt",
+			"name":"on_use",
+			"bypass":true,
+			"set":false,
+			"change":true,
+			"health":-100
+			}
+			]
 	},
 	{
 		"type":"prop",
-		"name":"medkitprop",
+		"name":"apple_prop",
 		"x":100,
 		"y":100,
-		"prop":"medkit"
+		"prop":"apple"
 	},
 	{
 		"type":"change",
-		"name":"medkit",
-		"output":"medkitprop",
+		"name":"apple",
+		"output":"apple_prop",
 		"key":"prop",
 		"value":"blank"
 	},
 	{
 		"type":"change",
-		"name":"medkit",
-		"output":"medkittrigger",
+		"name":"apple",
+		"output":"apple_trigger",
 		"key":"y_minimum",
 		"value":1
 	}

@@ -29,24 +29,31 @@ class Item():
     def __init__(self, data, uid):
         self.data = data
         self.uid = uid
+        self.entities = []
     def tick(self):
         pass
     def trigger(self): # Add self to inventory.
         if self.data['enabled']:
-            gamestate['player']['items'][self.data['name']] = self
+            gamestate['player']['items'].append(self)
             self.data['enabled'] = False
+            for entity in self.data['entities']:
+                self.entities.append(spawn(entity))
     def use(self):
-        for entity in self.data['entities']:
-        if entity.data['name'] == self.data['on_use']:
-            entity.trigger()
+        for entity in self.entities:
+            if entity.data['name'] == self.data['on_use']:
+                entity.trigger()
     def equip(self):
-        for entity in self.data['entities']:
-        if entity.data['name'] == self.data['on_equip']:
-            entity.trigger()
+        if not self.data['equipped']:
+            self.data['equipped'] = True
+            for entity in self.data['entities']:
+                if entity.data['name'] == self.data['on_equip']:
+                    entity.trigger()
     def unequip(self):
-        for entity in self.data['entities']:
-        if entity.data['name'] == self.data['on_unequip']:
-            entity.trigger()
+        if self.data['equipped']:
+            self.data['equipped'] = False
+            for entity in self.data['entities']:
+                if entity.data['name'] == self.data['on_unequip']:
+                    entity.trigger()
 class Tele(): # On a trigger input, they are teleported to another area of the same or different room.
     def __init__(self, data, uid):
         self.data = data
@@ -126,8 +133,8 @@ class Hurt():
             gamestate['player']['health'] = gamestate['player']['max_health']
         
 def spawn(data):
-    if data['type'] == 'generic':
-        return Generic(data, last_id + 1)
+    if data['type'] == 'item':
+        return Item(data, last_id + 1)
     elif data['type'] == 'tele':
         return Tele(data, last_id + 1)
     elif data['type'] == 'pickup':
@@ -233,7 +240,8 @@ def start():
         if gamestate['player']['health'] > gamestate['player']['max_health']:
             gamestate['player']['health'] = gamestate['player']['max_health']
         # Event Processing
-
+        if gamestate['player']['items']:
+            DISPLAYSURF.blit(loadAsset('../game/assets/items/'+gamestate['player']['items'][gamestate['player']['selected_item']-1].data['image']+'.png'), (0,0))
         for event in pygame.event.get():
             if event.type is QUIT:
                pygame.quit()
@@ -255,6 +263,12 @@ def start():
             if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_east']:
                 gamestate['action_east'] = True
                 gamestate['player']['direction'] = 'east'
+
+            if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_use']:
+                if gamestate['player']['items']:
+                    gamestate['player']['items'][gamestate['player']['selected_item']-1].use()
+            if event.type is KEYDOWN and pygame.key.name(event.key) is options['keybinds']['action_switch']:
+                gamestate['action_switch'] = True
                 
             if event.type is KEYUP and pygame.key.name(event.key) is options['keybinds']['action_north']:
                 gamestate['action_north'] = False

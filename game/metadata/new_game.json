@@ -10,6 +10,7 @@
 "max_velocity":1,
 "acceleration":0.2,
 "player":{
+	"selected_item":1,
 	"health":50,
 	"max_health":100,
 	"regen_speed":0.01,
@@ -21,8 +22,8 @@
 		"east":0,
 		"south":0,
 		"north":0
-		}
-	"items":{
-		}
+		},
+	"items":[
+		]
 	}
 }
