@@ -1,201 +1,8 @@
-import pygame, sys
+import pygame, sys, json, time, math, pygame.mixer, resources
 from pygame.locals import *
 from common import DISPLAYSURF
 from common import FONT
-import json
-import time
-import math
-import pygame.mixer
 
-gamestate = json.loads(open('../game/metadata/new_game.json').read())
-assets = {}
-entities = []
-reslist = []
-masks = {}
-level = {}
-assetlist = {}
-data = {} 
-options = json.loads(open('../data/options.json').read())
-last_id = -1
-class Generic():
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-    def tick(self):
-        pass
-    def trigger(self):
-        pass
-class Item():
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-        self.entities = []
-    def tick(self):
-        pass
-    def trigger(self): # Add self to inventory.
-        if self.data['enabled']:
-            gamestate['player']['items'].append(self)
-            self.data['enabled'] = False
-            for entity in self.data['entities']:
-                self.entities.append(spawn(entity))
-    def use(self):
-        for entity in self.entities:
-            if entity.data['name'] == self.data['on_use']:
-                entity.trigger()
-    def equip(self):
-        if not self.data['equipped']:
-            self.data['equipped'] = True
-            for entity in self.data['entities']:
-                if entity.data['name'] == self.data['on_equip']:
-                    entity.trigger()
-    def unequip(self):
-        if self.data['equipped']:
-            self.data['equipped'] = False
-            for entity in self.data['entities']:
-                if entity.data['name'] == self.data['on_unequip']:
-                    entity.trigger()
-class Tele(): # On a trigger input, they are teleported to another area of the same or different room.
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-    def tick(self):
-        print('Object "' + self.data['name'] + '" # ' + str(self.uid) + ' of type "tele" was ticked!')
-    def trigger(self):
-        gamestate['x'] = self.data['x']
-        gamestate['y'] = self.data['y']
-        gamestate['z'] = self.data['z']
-class Pickup(): # On player contact, executes some action such as putting an item into the players inventory, then becomes inactive and dissapears.
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-    def tick(self):
-        pass
-    def trigger(self):
-        pass
-
-class Prop(): # Something that displays a sprite.
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-        #level['props'][data[prop]]['hitbox'] = loadAsset(data[prop])
-    def tick(self):
-        DISPLAYSURF.blit(loadAsset('../game/assets/props/'+self.data['prop']+'.png'), (calcX(self.data['x'], 0, self.data['y']),calcY(self.data['x'], 0, self.data['y'])))
-    def trigger(self):
-        pass
-class Change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-    def tick(self):
-        pass
-    def trigger(self):
-        print('Change entity triggered.')
-        changeMain(self.data['output'], self.data['key'], self.data['value'])
-        
-class Trigger(): # On arbitrary met condition, trigger another object's trigerable input.
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-    def tick(self):
-        if gamestate['x'] >= self.data['x_minimum'] and gamestate['y'] >= self.data['y_minimum'] and gamestate['z'] >= self.data['z_minimum'] and gamestate['x'] <= self.data['x_maximum'] and gamestate['y'] <= self.data['y_maximum'] and gamestate['z'] <= self.data['z_maximum']:
-            triggerMain(self.data['output'])
-            print('Player is within the bounds of the trigger.')
-    def trigger(self):
-        pass
-class Spawner(): # On a trigger input, creates a new entity.
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-    def tick(self):
-        pass
-    def trigger(self):
-        pass
-class Hurt():
-    def __init__(self, data, uid):
-        self.data = data
-        self.uid = uid
-    def tick(self):
-        pass
-    def trigger(self):
-        print('hurt u')
-        if self.data['bypass']:
-            if self.data['set']:
-                gamestate['player']['health'] = self.data['health']
-            elif self.data['change']:
-                gamestate['player']['health'] -= self.data['health']
-        else:
-            gamestate['player']['armor'] -= gamestate['player']['armor_percent'] * self.data['health'] # Hit the armor.
-            gamestate['player']['health'] -= self.data['health'] - (gamestate['player']['armor_percent'] * self.data['health']) # Hit the player.
-            if gamestate['player']['armor'] < 0:
-                gamestate['player']['health'] += gamestate['player']['armor']
-                gamestate['player']['armor'] = 0
-        if gamestate['player']['health'] > gamestate['player']['max_health']:
-            gamestate['player']['health'] = gamestate['player']['max_health']
-        
-def spawn(data):
-    if data['type'] == 'item':
-        return Item(data, last_id + 1)
-    elif data['type'] == 'tele':
-        return Tele(data, last_id + 1)
-    elif data['type'] == 'pickup':
-        return Pickup(data, last_id + 1)
-    elif data['type'] == 'prop':
-        return Prop(data, last_id + 1)
-    elif data['type'] == 'change':
-        return Change(data, last_id + 1)
-    elif data['type'] == 'trigger':
-        return Trigger(data, last_id + 1)
-    elif data['type'] == 'spawner':
-        return Spawner(data, last_id + 1)
-    elif data['type'] == 'hurt':
-        return Hurt(data, last_id + 1)
-def changeMain(name, key, value):
-    print('bruv')
-    for entity in entities:
-        if entity.data['name'] == name:
-            entity.data[key] = value
-
-def triggerMain(name):
-    for entity in entities:
-        if entity.data['name'] == name:
-            entity.trigger()
-    
-def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
-    assetlist = json.loads(open('../game/metadata/asset_list.json').read())
-    for pair in assetlist:
-        try:
-            assets[pair] = pygame.image.load(assetlist[pair])
-        except:
-            assets[pair] = pygame.Surface((25, 25))
-
-def getAsset(name): # Get an already loaded asset, if asset not found, replace with error texture.
-    if name in assets:
-        return assets[name]
-    else:
-        return pygame.Surface((25, 25))
-
-def getMask(name):
-    if name in masks:
-        print('Done!')
-        return masks[name]
-    else:
-        print('Failed!')
-        return pygame.mask.from_surface(pygame.Surface((25, 25)))
-    
-def loadAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
-    try:
-        return pygame.image.load(filename)
-    except:
-        return pygame.Surface((25, 25))
-def getLevel(name):
-    if name in level:
-        return level[name]
-    else:
-        return pygame.Surface((25, 25))   
-def getGamestate(): # Will be used for saving gamestate.
-    return gamestate
-def setGamestate(gamestatein): # Will be used for loading gamestate.
-    gamestate = gamestatein
 def calcX(x, y, z): # Convert isometrric X values into actual screen coordinates.
     if gamestate['level_mode'] == 'isometric':
         return ((x * 2 - z * 2) + 0.25 * (x-z)) * 4
@@ -206,16 +13,7 @@ def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates
         return ((x + z - y) + 0.25 * (x+z)) * 4
     else:
         return (z - y) * 4
-def loadLevel():
-    level['visual'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/visual.png')
-    level['walls'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/walls.png')
-    level['fg'] = loadAsset('../game/maps/' + gamestate['lvl'] + '/fg.png')
-    for entity in json.loads(open('../game/maps/' + gamestate['lvl'] + '/entities.json').read()):
-        entities.append(spawn(entity))
-    data = json.loads(open('../game/maps/' + gamestate['lvl'] + '/data.json').read())
-    masks['level'] = pygame.mask.from_surface(getLevel('walls'))
-    masks['player'] = pygame.mask.from_surface(getAsset('player_hitbox'))
-    gamestate['level_mode'] = data['level_mode']
+
 def start():
     options = json.loads(open('../data/options.json').read())
 
@@ -342,9 +140,6 @@ def start():
             if time.process_time() - timeStart > 0.03: #0.03
                 pygame.display.update()
                 break
-
-loadAssets()
-loadLevel()
      
             
 

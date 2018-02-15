@@ -1,15 +1,10 @@
-import pygame, sys
+import pygame, sys, json
 from pygame.locals import *
-from common import DISPLAYSURF
-from common import FONT
-import json
-import time
-import math
 
 def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
     asset_list = json.loads(open('../game/metadata/asset_list.json').read())
-    assets = []
-    for pair in assetlist:
+    assets = {}
+    for pair in asset_list:
         try:
             assets[pair] = pygame.image.load(asset_list[pair])
         except:
@@ -35,3 +30,9 @@ def getLevel(name, level):
         return level[name]
     else:
         return pygame.Surface((25, 25))
+def loadLevel(level_name):
+    level = []
+    level['visual'] = loadAsset('../game/maps/' + level_name + '/visual.png')
+    level['walls'] = loadAsset('../game/maps/' + level_name + '/walls.png')
+    level['fg'] = loadAsset('../game/maps/' + level_name + '/fg.png')
+    return level
