@@ -1,11 +1,13 @@
 import pygame, sys, json, resources
 from pygame.locals import *
+from objects import spawn
+
+gamestate = json.loads(open('../game/metadata/new_game.json').read())
 
 DISPLAYSURF = pygame.display.set_mode((1024, 1024))
 pygame.font.init()
 FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
 
-gamestate = json.loads(open('../game/metadata/new_game.json').read())
 level = resources.loadLevel(gamestate['level'])
 assets = resources.loadAssets()
 entities = []

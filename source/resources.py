@@ -31,7 +31,7 @@ def getLevel(name, level):
     else:
         return pygame.Surface((25, 25))
 def loadLevel(level_name):
-    level = []
+    level = {}
     level['visual'] = loadAsset('../game/maps/' + level_name + '/visual.png')
     level['walls'] = loadAsset('../game/maps/' + level_name + '/walls.png')
     level['fg'] = loadAsset('../game/maps/' + level_name + '/fg.png')

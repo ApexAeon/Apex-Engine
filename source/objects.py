@@ -1,3 +1,7 @@
+import common
+import resources
+import game
+
 last_id = -1
 class Generic():
     def __init__(self, data, uid):
@@ -16,7 +20,7 @@ class Item():
         pass
     def trigger(self): # Add self to inventory.
         if self.data['enabled']:
-            gamestate['player']['items'].append(self)
+            common.gamestate['player']['items'].append(self)
             self.data['enabled'] = False
             for entity in self.data['entities']:
                 self.entities.append(spawn(entity))
@@ -43,9 +47,9 @@ class Tele(): # On a trigger input, they are teleported to another area of the s
     def tick(self):
         print('Object "' + self.data['name'] + '" # ' + str(self.uid) + ' of type "tele" was ticked!')
     def trigger(self):
-        gamestate['x'] = self.data['x']
-        gamestate['y'] = self.data['y']
-        gamestate['z'] = self.data['z']
+        common.gamestate['x'] = self.data['x']
+        common.gamestate['y'] = self.data['y']
+        common.gamestate['z'] = self.data['z']
 class Pickup(): # On player contact, executes some action such as putting an item into the players inventory, then becomes inactive and dissapears.
     def __init__(self, data, uid):
         self.data = data
@@ -61,7 +65,7 @@ class Prop(): # Something that displays a sprite.
         self.uid = uid
         #level['props'][data[prop]]['hitbox'] = loadAsset(data[prop])
     def tick(self):
-        DISPLAYSURF.blit(loadAsset('../game/assets/props/'+self.data['prop']+'.png'), (calcX(self.data['x'], 0, self.data['y']),calcY(self.data['x'], 0, self.data['y'])))
+        common.DISPLAYSURF.blit(resources.loadAsset('../game/assets/props/'+self.data['prop']+'.png'), (game.calcX(self.data['x'], 0, self.data['y']),game.calcY(self.data['x'], 0, self.data['y'])))
     def trigger(self):
         pass
 class Change(): # On a trigger input, can change the state of itself or any other entity. Example: On input, change "propfile" of "entity-360" to "chair.png."
@@ -79,7 +83,7 @@ class Trigger(): # On arbitrary met condition, trigger another object's trigerab
         self.data = data
         self.uid = uid
     def tick(self):
-        if gamestate['x'] >= self.data['x_minimum'] and gamestate['y'] >= self.data['y_minimum'] and gamestate['z'] >= self.data['z_minimum'] and gamestate['x'] <= self.data['x_maximum'] and gamestate['y'] <= self.data['y_maximum'] and gamestate['z'] <= self.data['z_maximum']:
+        if common.gamestate['x'] >= self.data['x_minimum'] and common.gamestate['y'] >= self.data['y_minimum'] and common.gamestate['z'] >= self.data['z_minimum'] and common.gamestate['x'] <= self.data['x_maximum'] and common.gamestate['y'] <= self.data['y_maximum'] and common.gamestate['z'] <= self.data['z_maximum']:
             triggerMain(self.data['output'])
             print('Player is within the bounds of the trigger.')
     def trigger(self):
@@ -102,17 +106,17 @@ class Hurt():
         print('hurt u')
         if self.data['bypass']:
             if self.data['set']:
-                gamestate['player']['health'] = self.data['health']
+                common.gamestate['player']['health'] = self.data['health']
             elif self.data['change']:
-                gamestate['player']['health'] -= self.data['health']
+                common.gamestate['player']['health'] -= self.data['health']
         else:
-            gamestate['player']['armor'] -= gamestate['player']['armor_percent'] * self.data['health'] # Hit the armor.
-            gamestate['player']['health'] -= self.data['health'] - (gamestate['player']['armor_percent'] * self.data['health']) # Hit the player.
+            common.gamestate['player']['armor'] -= common.gamestate['player']['armor_percent'] * self.data['health'] # Hit the armor.
+            common.gamestate['player']['health'] -= self.data['health'] - (common.gamestate['player']['armor_percent'] * self.data['health']) # Hit the player.
             if gamestate['player']['armor'] < 0:
-                gamestate['player']['health'] += gamestate['player']['armor']
-                gamestate['player']['armor'] = 0
-        if gamestate['player']['health'] > gamestate['player']['max_health']:
-            gamestate['player']['health'] = gamestate['player']['max_health']
+                common.gamestate['player']['health'] += common.gamestate['player']['armor']
+                common.gamestate['player']['armor'] = 0
+        if common.gamestate['player']['health'] > common.gamestate['player']['max_health']:
+            common.gamestate['player']['health'] = common.gamestate['player']['max_health']
 def spawn(data):
     if data['type'] == 'item':
         return Item(data, last_id + 1)
@@ -131,10 +135,10 @@ def spawn(data):
     elif data['type'] == 'hurt':
         return Hurt(data, last_id + 1)
 def changeMain(name, key, value):
-    for entity in entities:
+    for entity in common.entities:
         if entity.data['name'] == name:
             entity.data[key] = value
 def triggerMain(name):
-    for entity in entities:
+    for entity in common.entities:
         if entity.data['name'] == name:
             entity.trigger()

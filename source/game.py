@@ -1,7 +1,7 @@
 import pygame, sys, json, time, math, pygame.mixer, resources
 from pygame.locals import *
-from common import DISPLAYSURF
-from common import FONT
+from common import *
+from resources import *
 
 def calcX(x, y, z): # Convert isometrric X values into actual screen coordinates.
     if gamestate['level_mode'] == 'isometric':
@@ -24,13 +24,13 @@ def start():
             return "DIE"
         
         timeStart = time.process_time() # Maintain constant framerate.
-        DISPLAYSURF.blit(getLevel('visual'), (0,0))
-        DISPLAYSURF.blit(getAsset('chardisplay'),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
-        DISPLAYSURF.blit(getLevel('fg'), (0,0))
+        DISPLAYSURF.blit(getLevel('visual', level), (0,0))
+        DISPLAYSURF.blit(getAsset('chardisplay', assets),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
+        DISPLAYSURF.blit(getLevel('fg', level), (0,0))
         DISPLAYSURF.blit(FONT.render('Health: '+str(int(gamestate['player']['health']))+' Armor: '+str(int(gamestate['player']['armor'])), True, (0, 0, 255)), (0,0))
 
         if not gamestate['isMoving']:
-            assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle')
+            assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle', assets)
         for entity in entities:
             entity.tick()
         if gamestate['player']['health'] < gamestate['player']['max_health']:

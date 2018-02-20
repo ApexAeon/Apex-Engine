@@ -1,10 +1,8 @@
-
 import pygame, sys
 from pygame.locals import *
 import json
 import game
-from common import DISPLAYSURF
-from common import FONT
+from common import *
 menuAssets = {}
 def loadMenuAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
     assetList = json.loads(open('../game/metadata/menu_asset_list.json').read())
