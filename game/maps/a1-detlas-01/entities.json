@@ -13,7 +13,9 @@
 	},
 	{
 		"enabled":true,
+		"count":1,
 		"on_use":"on_use",
+		"consumable":true,
 		"type":"item",
 		"name":"apple",
 		"image":"apple",

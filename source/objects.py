@@ -19,15 +19,25 @@ class Item():
     def tick(self):
         pass
     def trigger(self): # Add self to inventory.
+        for item in common.gamestate['player']['items']:
+            if item.name == self.name:
+                item.add()
+                return 0
         if self.data['enabled']:
+            for item in common.gamestate['player']['items']:
+                if item.data['name'] == self.data['name']:
+                    item.add()
+                    return 0
             common.gamestate['player']['items'].append(self)
             self.data['enabled'] = False
             for entity in self.data['entities']:
                 self.entities.append(spawn(entity))
     def use(self):
-        for entity in self.entities:
-            if entity.data['name'] == self.data['on_use']:
-                entity.trigger()
+        if self.data['count'] > 0:
+            self.data['count'] -= 1
+            for entity in self.entities:
+                if entity.data['name'] == self.data['on_use']:
+                    entity.trigger()
     def equip(self):
         if not self.data['equipped']:
             self.data['equipped'] = True
@@ -40,6 +50,8 @@ class Item():
             for entity in self.data['entities']:
                 if entity.data['name'] == self.data['on_unequip']:
                     entity.trigger()
+    def add(self):
+        self.data['count'] += 1
 class Tele(): # On a trigger input, they are teleported to another area of the same or different room.
     def __init__(self, data, uid):
         self.data = data

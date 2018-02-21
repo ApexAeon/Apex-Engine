@@ -38,7 +38,7 @@ def start():
         if gamestate['player']['health'] > gamestate['player']['max_health']:
             gamestate['player']['health'] = gamestate['player']['max_health']
         # Event Processing
-        if gamestate['player']['items']:
+        if gamestate['player']['items'] and gamestate['player']['items'][gamestate['player']['selected_item']-1].data['count']>0:
             DISPLAYSURF.blit(loadAsset('../game/assets/items/'+gamestate['player']['items'][gamestate['player']['selected_item']-1].data['image']+'.png'), (0,0))
         for event in pygame.event.get():
             if event.type is QUIT:
