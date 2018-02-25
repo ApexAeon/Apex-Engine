@@ -1,9 +1,9 @@
-import pygame, sys
 from pygame.locals import *
-import json
-import game
+import game, dialog, json, pygame, sys
 from common import *
 menuAssets = {}
+dialogbox=dialog.Box('',5)
+realbox = dialogbox.render()
 def loadMenuAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
     assetList = json.loads(open('../game/metadata/menu_asset_list.json').read())
     for pair in assetList:
@@ -42,6 +42,7 @@ while True: # Main loop
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'main': # Code for the main menu. 
             DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(realbox, (0, 0))
             if selected is 5:
                 selected = 1
             if selected is 0:
