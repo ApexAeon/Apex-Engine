@@ -1,0 +1,11 @@
+{
+"keybinds":
+	{
+	"action_north":"w",
+	"action_west":"a",
+	"action_south":"s",
+	"action_east":"d",
+	"action_use":"e",
+	"action_switch":"q"
+	}
+}

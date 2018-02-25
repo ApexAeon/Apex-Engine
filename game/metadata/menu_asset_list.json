@@ -1,0 +1,14 @@
+{
+	"main_menu_screen":"cover.png",
+	"main_menu_selected_quit":"quit.png",
+	"main_menu_selected_options":"opt.png",
+	"main_menu_selected_load":"load.png",
+	"main_menu_selected_play":"play.png",
+	"pause_menu_selected_quit":"quit.png",
+	"pause_menu_selected_options":"opt.png",
+	"pause_menu_selected_load":"load.png",
+	"pause_menu_selected_resume":"play.png",
+	"pause_menu_selected_save":"sav.png",
+	"pause_menu_screen":"paused.png",
+	"options_menu_screen":"optmenu.png"
+}
