@@ -1,6 +1,10 @@
 import common
 import resources
 import game
+import dialog
+import pygame
+import time
+from pygame.locals import *
 
 last_id = -1
 class Generic():
@@ -129,11 +133,56 @@ class Hurt():
                 common.gamestate['player']['armor'] = 0
         if common.gamestate['player']['health'] > common.gamestate['player']['max_health']:
             common.gamestate['player']['health'] = common.gamestate['player']['max_health']
+class Level():
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        pass
+    def trigger(self):
+        common.gamestate['x'] = self.data['x']
+        common.gamestate['y'] = self.data['y']
+        common.gamestate['z'] = self.data['z']
+        common.gamestate['level'] = self.data['level']
+        common.load()
+class Dialog():
+    def __init__(self, data, uid):
+        self.data = data
+        self.uid = uid
+    def tick(self):
+        pass
+    def trigger(self):
+        i = 0
+        bepis = True
+        box = dialog.Box('',5)
+        while bepis: # Scroll text into dialog box
+            if i is len(self.data['content']): # Finish scrolling
+                break
+            box.addContent(self.data['content'][i])
+            i += 1
+            common.DISPLAYSURF.blit(box.render(),(0,0))
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type is KEYDOWN and event.key is K_RETURN: # Skip dialog scroll
+                    box.setContent(self.data['content'])
+                    common.DISPLAYSURF.blit(box.render(),(0,0))
+                    pygame.display.update()
+                    bepis = False
+            time.sleep(0.1)
+        while True: # Wait for user
+            for event in pygame.event.get():
+                if event.type is KEYDOWN and event.key is K_RETURN: # Go to next dialog.
+                    triggerMain(self.data['output'])
+                    return 0
 def spawn(data):
     if data['type'] == 'item':
         return Item(data, last_id + 1)
     elif data['type'] == 'tele':
         return Tele(data, last_id + 1)
+    elif data['type'] == 'level':
+        return Level(data, last_id + 1)
+    elif data['type'] == 'dialog':
+        return Dialog(data, last_id + 1)
     elif data['type'] == 'pickup':
         return Pickup(data, last_id + 1)
     elif data['type'] == 'prop':

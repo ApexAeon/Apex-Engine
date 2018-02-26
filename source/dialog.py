@@ -1,6 +1,7 @@
 import pygame, sys
 from pygame.locals import *
-
+pygame.font.init()
+FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
 class Box():
     def __init__(self, content='', border_width=1, border_color=(255,255,255), background_color=(0,0,255),width=800,height=200):
         self.content=content
@@ -13,5 +14,10 @@ class Box():
         self.image=pygame.Surface((self.width,self.height))
         self.image.fill(self.border_color)
         self.image.fill(self.background_color,pygame.Rect((self.border_width,self.border_width),(self.width-self.border_width*2,self.height-self.border_width*2)))
+        self.image.blit(FONT.render(self.content, True, self.border_color),(self.border_width+5,self.border_width+5))
         return self.image
+    def setContent(self, stuff):
+        self.content = stuff
+    def addContent(self, stuff):
+        self.content += stuff
                 

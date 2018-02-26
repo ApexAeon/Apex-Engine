@@ -12,12 +12,44 @@
 		"output":"apple"
 	},
 	{
+		"type":"level",
+		"name":"apple",
+		"x":0,
+		"y":0,
+		"z":0,
+		"level":"testmap"
+	},
+	{
+		"type":"dialog",
+		"name":"dapple",
+		"content":"Hello, World!",
+		"output":"apple2"
+	},
+	{
+		"type":"dialog",
+		"name":"apple2",
+		"content":"These new dialog boxes are hella cool",
+		"output":"apple3"
+	},
+	{
+		"type":"dialog",
+		"name":"apple3",
+		"content":"It's me.",
+		"output":"apple4"
+	},
+	{
+		"type":"dialog",
+		"name":"apple4",
+		"content":"ill kill u",
+		"output":"bapple"
+	},
+	{
 		"enabled":true,
 		"count":1,
 		"on_use":"on_use",
 		"consumable":true,
 		"type":"item",
-		"name":"apple",
+		"name":"bapple",
 		"image":"apple",
 		"equipped":false,
 		"equippable":false,
