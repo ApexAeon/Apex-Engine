@@ -132,8 +132,6 @@ def start():
         if gamestate['player']['velocity']['east'] > 0 and       masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) ) ) == 0:
             gamestate['x'] = gamestate['x'] + gamestate['player']['velocity']['east']
 
-        print(gamestate['x'],gamestate['z'])
-
         # Maintain constant framerate.
 
         while True: 
