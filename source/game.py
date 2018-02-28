@@ -6,13 +6,28 @@ from resources import *
 def calcX(x, y, z): # Convert isometrric X values into actual screen coordinates.
     if gamestate['level_mode'] == 'isometric':
         return ((x * 2 - z * 2) + 0.25 * (x-z)) * 4
+    elif gamestate['level_mode'] == 'scroll':
+        return 1152/2
     else:
         return x * 4
 def calcY(x, y, z): # Convert isometrric Y values into actual screen coordinates.
     if gamestate['level_mode'] == 'isometric':
         return ((x + z - y) + 0.25 * (x+z)) * 4
+    elif gamestate['level_mode'] == 'scroll':
+        return 648/2
     else:
         return (z - y) * 4
+
+def calcLevelX(x, y, z):
+    if gamestate['level_mode'] == "scroll":
+        return (0-x)*4
+    else:
+        return 0
+def calcLevelY(x, y, z):
+    if gamestate['level_mode'] == "scroll":
+        return (0-z)*4
+    else:
+        return 0
 
 def start():
     options = json.loads(open('../data/options.json').read())
@@ -24,7 +39,7 @@ def start():
             return "DIE"
         
         timeStart = time.process_time() # Maintain constant framerate.
-        DISPLAYSURF.blit(getLevel('visual', level), (0,0))
+        DISPLAYSURF.blit(getLevel('visual', level),(math.floor(calcLevelX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcLevelY(gamestate['x'], gamestate['y'], gamestate['z']))))
         DISPLAYSURF.blit(getAsset('chardisplay', assets),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
         DISPLAYSURF.blit(getLevel('fg', level), (0,0))
         DISPLAYSURF.blit(FONT.render('Health: '+str(int(gamestate['player']['health']))+' Armor: '+str(int(gamestate['player']['armor'])), True, (0, 0, 255)), (0,0))
