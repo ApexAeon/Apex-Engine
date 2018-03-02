@@ -137,15 +137,24 @@ def start():
                 gamestate['player']['velocity']['east'] = 0
 
         # Collision detection and final motion implementation.
-
-        if gamestate['player']['velocity']['north'] > 0 and masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) ) ) == 0:
-            gamestate['z'] = gamestate['z'] - gamestate['player']['velocity']['north']
-        if gamestate['player']['velocity']['west'] > 0 and       masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) ) ) == 0:
-            gamestate['x'] = gamestate['x'] - gamestate['player']['velocity']['west']
-        if gamestate['player']['velocity']['south'] > 0 and      masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) ) ) == 0:
-            gamestate['z'] = gamestate['z'] + gamestate['player']['velocity']['south']
-        if gamestate['player']['velocity']['east'] > 0 and       masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) ) ) == 0:
-            gamestate['x'] = gamestate['x'] + gamestate['player']['velocity']['east']
+        if gamestate['level_mode'] == 'scroll':
+            if gamestate['player']['velocity']['north'] > 0 and     masks['level'].overlap_area(masks['player'],(math.floor(gamestate['x']*4+(1152/2)),math.floor((gamestate['z']-gamestate['player']['velocity']['north'])*4+(648/2))))==0:
+                gamestate['z'] = gamestate['z'] - gamestate['player']['velocity']['north']
+            if gamestate['player']['velocity']['west'] > 0 and      masks['level'].overlap_area(masks['player'],(math.floor((gamestate['x']-gamestate['player']['velocity']['west'])*4+(1152/2)),math.floor(gamestate['z']*4+(648/2))))==0:
+                gamestate['x'] = gamestate['x'] - gamestate['player']['velocity']['west']
+            if gamestate['player']['velocity']['south'] > 0 and     masks['level'].overlap_area(masks['player'],(math.floor(gamestate['x']*4+(1152/2)),math.floor((gamestate['z']+gamestate['player']['velocity']['south'])*4+(648/2))))==0:
+                gamestate['z'] = gamestate['z'] + gamestate['player']['velocity']['south']
+            if gamestate['player']['velocity']['east'] > 0 and      masks['level'].overlap_area(masks['player'],(math.floor((gamestate['x']+gamestate['player']['velocity']['east'])*4+(1152/2)),math.floor(gamestate['z']*4+(648/2))))==0:
+                gamestate['x'] = gamestate['x'] + gamestate['player']['velocity']['east']
+        else:
+            if gamestate['player']['velocity']['north'] > 0 and masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']-gamestate['player']['velocity']['north'])) ) ) == 0:
+                gamestate['z'] = gamestate['z'] - gamestate['player']['velocity']['north']
+            if gamestate['player']['velocity']['west'] > 0 and       masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']-gamestate['player']['velocity']['west'],0,gamestate['z'])) ) ) == 0:
+                gamestate['x'] = gamestate['x'] - gamestate['player']['velocity']['west']
+            if gamestate['player']['velocity']['south'] > 0 and      masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) , math.floor(calcY(gamestate['x'],0,gamestate['z']+gamestate['player']['velocity']['south'])) ) ) == 0:
+                gamestate['z'] = gamestate['z'] + gamestate['player']['velocity']['south']
+            if gamestate['player']['velocity']['east'] > 0 and       masks['level'].overlap_area( masks['player'] , ( math.floor(calcX(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) , math.floor(calcY(gamestate['x']+gamestate['player']['velocity']['east'],0,gamestate['z'])) ) ) == 0:
+                gamestate['x'] = gamestate['x'] + gamestate['player']['velocity']['east']
 
         # Maintain constant framerate.
 
