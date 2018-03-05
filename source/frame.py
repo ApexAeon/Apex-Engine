@@ -1,36 +1,11 @@
 from pygame.locals import *
 import game, dialog, json, pygame, sys
 from common import *
-menuAssets = {}
-def loadMenuAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
-    assetList = json.loads(open('../game/metadata/menu_asset_list.json').read())
-    for pair in assetList:
-        try:
-            menuAssets[pair] = pygame.image.load('../game/assets/' + assetList[pair])
-        except:
-            menuAssets[pair] = pygame.Surface((25, 25))
-def getMenuAsset(name): # Get an already loaded asset, if asset not found, replace with error texture.
-    if name in menuAssets:
-        return menuAssets[name]
-    else:
-        return pygame.Surface((25, 25))
-def loadMenuAsset(filename): # Attempts to load a single image, if an error occurs, it loads the error texture instead.
-    try:
-        return pygame.image.load(filename)
-    except:
-        return pygame.Surface((25, 25))
-loadMenuAssets()
+from resources import *
 paused = False
 mode = 'main'
 selected = 1
-info = json.loads(open('../game/metadata/info.json','r').read())
-pygame.init()
-DISPLAYSURF = pygame.display.set_mode((1152, 648),pygame.FULLSCREEN)
-pygame.display.set_caption(info['name'])
-pygame.display.set_icon(getMenuAsset('icon'))
 options = json.loads(open('../data/options.json','r').read())
-FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
-
 
 while True: # Main loop
     for event in pygame.event.get():
@@ -39,19 +14,19 @@ while True: # Main loop
             sys.exit()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'main': # Code for the main menu. 
-            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getAsset('main_menu_screen', assets), (0, 0))
             if selected is 5:
                 selected = 1
             if selected is 0:
                 selected = 4
             if selected is 1:
-                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_play'), (0, 0))
+                DISPLAYSURF.blit(getAsset('main_menu_selected_play', assets), (0, 0))
             if selected is 2:
-                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_load'), (0, 0))
+                DISPLAYSURF.blit(getAsset('main_menu_selected_load', assets), (0, 0))
             if selected is 3:
-                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_options'), (0, 0))
+                DISPLAYSURF.blit(getAsset('main_menu_selected_options', assets), (0, 0))
             if selected is 4:
-                DISPLAYSURF.blit(getMenuAsset('main_menu_selected_quit'), (0, 0))
+                DISPLAYSURF.blit(getAsset('main_menu_selected_quit', assets), (0, 0))
             if event.type is KEYDOWN and event.key is K_RETURN:
                 if selected is 1:
                     mode = 'playing'
@@ -68,13 +43,13 @@ while True: # Main loop
                 selected = selected - 1
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'load':
-            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getAsset('main_menu_screen', assets), (0, 0))
             game.setGamestate(json.loads(open('../data/save/save.json','r').read()))
             mode = 'playing'
             paused = False
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'save':
-            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getAsset('main_menu_screen', assets), (0, 0))
             open('../data/save/save.json','w').truncate()
             open('../data/save/save.json','w').write(json.dumps(game.getGamestate()))
             if paused:
@@ -85,7 +60,7 @@ while True: # Main loop
         if mode == 'options':
             temp_counter = 0
             options_list = []
-            DISPLAYSURF.blit(getMenuAsset('options_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getAsset('options_menu_screen', assets), (0, 0))
             for keybind in options['keybinds']:
                 options_list.append([keybind, options['keybinds'][keybind]])
                 temp_counter += 1
@@ -122,21 +97,21 @@ while True: # Main loop
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'paused':
             paused = True
-            DISPLAYSURF.blit(getMenuAsset('pause_menu_screen'), (0,0))
+            DISPLAYSURF.blit(getAsset('pause_menu_screen', assets), (0,0))
             if selected is 6:
                 selected = 1
             if selected is 0:
                 selected = 5
             if selected is 1:
-                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_resume'), (0, 0))
+                DISPLAYSURF.blit(getAsset('pause_menu_selected_resume', assets), (0, 0))
             if selected is 2:
-                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_save'), (0, 0))
+                DISPLAYSURF.blit(getAsset('pause_menu_selected_save', assets), (0, 0))
             if selected is 3:
-                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_load'), (0, 0))
+                DISPLAYSURF.blit(getAsset('pause_menu_selected_load', assets), (0, 0))
             if selected is 4:
-                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_options'), (0, 0))
+                DISPLAYSURF.blit(getAsset('pause_menu_selected_options', assets), (0, 0))
             if selected is 5:
-                DISPLAYSURF.blit(getMenuAsset('pause_menu_selected_quit'), (0, 0))
+                DISPLAYSURF.blit(getAsset('pause_menu_selected_quit', assets), (0, 0))
             if event.type is KEYDOWN and event.key is K_RETURN:
                 if selected is 1:
                     mode = 'playing'
@@ -157,7 +132,7 @@ while True: # Main loop
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'playing':
             selected = 1
-            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
+            DISPLAYSURF.blit(getAsset('main_menu_screen', assets), (0, 0))
             gamemsg = game.start()
             if gamemsg is 'PAUSE':
                 mode = 'paused'
@@ -165,8 +140,8 @@ while True: # Main loop
                 mode = 'gameover'
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'gameover':
-            DISPLAYSURF.blit(getMenuAsset('main_menu_screen'), (0, 0))
-            DISPLAYSURF.blit(getMenuAsset('game_over_screen'), (0,0))
+            DISPLAYSURF.blit(getAsset('main_menu_screen', assets), (0, 0))
+            DISPLAYSURF.blit(getAsset('game_over_screen', assets), (0,0))
             if event.type is KEYDOWN and event.key is K_RETURN:
                 if selected is 1:
                     mode = 'main'
@@ -182,9 +157,9 @@ while True: # Main loop
             if selected is 0:
                 selected = 2
             if selected is 1:
-                DISPLAYSURF.blit(getMenuAsset('game_over_screen_selected_yes'), (0, 0))
+                DISPLAYSURF.blit(getAsset('game_over_screen_selected_yes', assets), (0, 0))
             if selected is 2:
-                DISPLAYSURF.blit(getMenuAsset('game_over_screen_selected_no'), (0, 0))   
+                DISPLAYSURF.blit(getAsset('game_over_screen_selected_no', assets), (0, 0))   
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         pygame.display.update()
 #            somebody once told me the world was macoroni
