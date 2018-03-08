@@ -40,12 +40,12 @@ def start():
         
         timeStart = time.process_time() # Maintain constant framerate.
         DISPLAYSURF.blit(getLevel('visual', level),(math.floor(calcLevelX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcLevelY(gamestate['x'], gamestate['y'], gamestate['z']))))
-        DISPLAYSURF.blit(getAsset('chardisplay', assets),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
+        DISPLAYSURF.blit(getAsset('player_display', assets),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
         DISPLAYSURF.blit(getLevel('fg', level), (0,0))
         DISPLAYSURF.blit(FONT.render('Health: '+str(int(gamestate['player']['health']))+' Armor: '+str(int(gamestate['player']['armor'])), True, (0, 0, 255)), (0,0))
 
         if not gamestate['isMoving']:
-            assets['chardisplay'] = getAsset(gamestate['player']['direction']+'_idle', assets)
+            assets['player_display'] = getAnimation('idle',gamestate['player']['direction'],'a',getAsset('player',assets))
         for entity in entities:
             entity.tick()
         if gamestate['player']['health'] < gamestate['player']['max_health']:

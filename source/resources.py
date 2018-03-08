@@ -1,6 +1,19 @@
 import pygame, sys, json
 from pygame.locals import *
-
+animations = {
+    "spell":0,
+    "walk":8,
+    "thrust":4,
+    "slash":12,
+    "hurt":20,
+    "shoot"16
+    }
+directions = {
+    "north":0,
+    "west":1,
+    "south":2,
+    "east":3
+    }
 def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
     asset_list = json.loads(open('../game/metadata/asset_list.json').read())
     assets = {}
@@ -36,3 +49,7 @@ def loadLevel(level_name):
     level['walls'] = loadAsset('../game/maps/' + level_name + '/walls.png')
     level['fg'] = loadAsset('../game/maps/' + level_name + '/fg.png')
     return level
+def getAnimation(animation, direction, state, sheet)
+    row = animations[animation] + directions[direction]
+    column = state
+
