@@ -6,7 +6,7 @@ animations = {
     "thrust":4,
     "slash":12,
     "hurt":20,
-    "shoot"16
+    "shoot":16
     }
 directions = {
     "north":0,
@@ -14,6 +14,14 @@ directions = {
     "south":2,
     "east":3
     }
+animation_lengths = {
+    "spell":7,
+    "walk":9,
+    "thrust":8,
+    "slash":6,
+    "hurt":6,
+    "shoot":13
+}
 def loadAssets(): # Attempts to load all assets listed in assets.json into the assets dictionary. Replaced missing textures with error texture.
     asset_list = json.loads(open('../game/metadata/asset_list.json').read())
     assets = {}
@@ -44,12 +52,11 @@ def getLevel(name, level):
     else:
         return pygame.Surface((25, 25))
 def loadLevel(level_name):
-    level = {}
-    level['visual'] = loadAsset('../game/maps/' + level_name + '/visual.png')
-    level['walls'] = loadAsset('../game/maps/' + level_name + '/walls.png')
-    level['fg'] = loadAsset('../game/maps/' + level_name + '/fg.png')
-    return level
-def getAnimation(animation, direction, state, sheet)
+    return {'visual':loadAsset('../game/maps/' + level_name + '/visual.png'),'walls':loadAsset('../game/maps/' + level_name + '/walls.png'),'fg':loadAsset('../game/maps/' + level_name + '/fg.png')}
+def getAnimation(animation, direction, state, sheet, size=(64, 64)):
     row = animations[animation] + directions[direction]
     column = state
-
+    sprite = pygame.Surface(size, SRCALPHA)
+    sprite.fill((255,255,255,0))
+    sprite.blit(sheet , ( -(column*size[0]) , -(row*size[1]) ) )
+    return sprite

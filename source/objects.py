@@ -144,6 +144,7 @@ class Level():
         common.gamestate['y'] = self.data['y']
         common.gamestate['z'] = self.data['z']
         common.gamestate['level'] = self.data['level']
+        common.gamestate['player']['direction'] = self.data['direction']
         common.load()
 class Dialog():
     def __init__(self, data, uid):
@@ -161,11 +162,13 @@ class Dialog():
             box.addContent(self.data['content'][i])
             i += 1
             common.DISPLAYSURF.blit(box.render(),(0,0))
+            common.scale()
             pygame.display.update()
             for event in pygame.event.get():
                 if event.type is KEYDOWN and event.key is K_RETURN: # Skip dialog scroll
                     box.setContent(self.data['content'])
                     common.DISPLAYSURF.blit(box.render(),(0,0))
+                    common.scale()
                     pygame.display.update()
                     bepis = False
             time.sleep(0.1)

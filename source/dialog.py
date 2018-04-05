@@ -1,9 +1,9 @@
 import pygame, sys
 from pygame.locals import *
 pygame.font.init()
-FONT = pygame.font.SysFont('Bauhaus 93 Regular', 40)
+FONT = pygame.font.SysFont('Bauhaus 93 Regular', 15)
 class Box():
-    def __init__(self, content='', border_width=1, border_color=(255,255,255), background_color=(0,0,255),width=800,height=200):
+    def __init__(self, content='', border_width=1, border_color=(255,255,255), background_color=(0,0,255),width=200,height=50):
         self.content=content
         self.border_width=border_width
         self.border_color=border_color
@@ -20,4 +20,3 @@ class Box():
         self.content = stuff
     def addContent(self, stuff):
         self.content += stuff
-                

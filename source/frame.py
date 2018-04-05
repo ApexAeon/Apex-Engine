@@ -1,6 +1,6 @@
-from pygame.locals import *
-import game, dialog, json, pygame, sys
+import game, dialog, json, pygame, sys, common
 from common import *
+from pygame.locals import *
 from resources import *
 paused = False
 mode = 'main'
@@ -60,12 +60,13 @@ while True: # Main loop
         if mode == 'options':
             temp_counter = 0
             options_list = []
+            DISPLAYSURF.blit(getAsset('main_menu_screen', assets), (0, 0))
             DISPLAYSURF.blit(getAsset('options_menu_screen', assets), (0, 0))
             for keybind in options['keybinds']:
                 options_list.append([keybind, options['keybinds'][keybind]])
                 temp_counter += 1
                 DISPLAYSURF.blit(FONT.render(keybind, False, (0,0,0) ), (25,25*(temp_counter+1)) )
-                DISPLAYSURF.blit(FONT.render(options_list[temp_counter - 1][1], False, (0,0,0) ), (500,25*(temp_counter+1)) )
+                DISPLAYSURF.blit(FONT.render(options_list[temp_counter - 1][1], False, (0,0,0) ), (200,25*(temp_counter+1)) )
             if event.type is KEYDOWN and event.key == K_ESCAPE:
                 if paused:
                     mode = 'paused'
@@ -80,10 +81,11 @@ while True: # Main loop
             if selected is len(options_list) + 1:
                 selected = 1
             DISPLAYSURF.blit(FONT.render(options_list[selected-1][0], False, (0,0,255) ), (25,25*(selected+1)) )
-            DISPLAYSURF.blit(FONT.render(options_list[selected-1][1], False, (0,0,255) ), (500,25*(selected+1)) )
+            DISPLAYSURF.blit(FONT.render(options_list[selected-1][1], False, (0,0,255) ), (200,25*(selected+1)) )
             if event.type is KEYDOWN and event.key == K_RIGHT:
                 DISPLAYSURF.blit(FONT.render(options_list[selected-1][0], False, (255,0,0) ), (25,25*(selected+1)) )
-                DISPLAYSURF.blit(FONT.render(options_list[selected-1][1], False, (255,0,0) ), (500,25*(selected+1)) )
+                DISPLAYSURF.blit(FONT.render(options_list[selected-1][1], False, (255,0,0) ), (200,25*(selected+1)) )
+                common.scale()
                 pygame.display.update()
                 recording = True
                 while recording:
@@ -97,6 +99,7 @@ while True: # Main loop
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if mode == 'paused':
             paused = True
+            DISPLAYSURF.blit(getAsset('main_menu_screen', assets), (0, 0))
             DISPLAYSURF.blit(getAsset('pause_menu_screen', assets), (0,0))
             if selected is 6:
                 selected = 1
@@ -161,6 +164,7 @@ while True: # Main loop
             if selected is 2:
                 DISPLAYSURF.blit(getAsset('game_over_screen_selected_no', assets), (0, 0))   
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        common.scale()
         pygame.display.update()
 #            somebody once told me the world was macoroni
 #            so i took a bite out of a tree
