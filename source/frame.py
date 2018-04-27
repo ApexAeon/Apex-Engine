@@ -5,7 +5,7 @@ from resources import *
 paused = False
 mode = 'main'
 selected = 1
-options = json.loads(open('../data/options.json','r').read())
+options = resources.loadData('options')
 
 while True: # Main loop
     for event in pygame.event.get():

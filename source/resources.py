@@ -1,4 +1,4 @@
-import pygame, sys, json
+import pygame, sys, json, os
 from pygame.locals import *
 animations = {
     "spell":0,
@@ -60,3 +60,9 @@ def getAnimation(animation, direction, state, sheet, size=(64, 64)):
     sprite.fill((255,255,255,0))
     sprite.blit(sheet , ( -(column*size[0]) , -(row*size[1]) ) )
     return sprite
+def loadData(data_name):
+    file = [os.path.join(root, name)
+             for root, dirs, files in os.walk('..')
+             for name in files
+             if name.endswith((data_name+'.json'))]
+    return json.loads(open(file[0]).read())

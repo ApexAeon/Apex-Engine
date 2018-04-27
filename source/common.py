@@ -3,10 +3,10 @@ from pygame.locals import *
 from objects import spawn
 pygame.init()
 FONT = pygame.font.SysFont('Bauhaus 93 Regular', 30)
-gamestate = resources.loadData('../game/metadata/new_game.json')
-options = resources.loadData('../data/options.json')
+gamestate = resources.loadData('new_game')
+options = resources.loadData('options')
 DISPLAYSURF = pygame.Surface((gamestate['game_width'],gamestate['game_height']))
-REALSURF = pygame.display.set_mode((options['screen_width'], options['screen_height']),pygame.BORDERLESS) # ,pygame.FULLSCREEN 
+REALSURF = pygame.display.set_mode((options['screen_width'], options['screen_height'])) # ,pygame.FULLSCREEN 
 pygame.font.init()
 level = resources.loadLevel(gamestate['level'])
 assets = resources.loadAssets()
