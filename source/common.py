@@ -2,11 +2,11 @@ import pygame, sys, json, resources
 from pygame.locals import *
 from objects import spawn
 pygame.init()
-FONT = pygame.font.SysFont('Bauhaus 93 Regular', 30)
+FONT = pygame.font.SysFont('Calibri', 30)
 gamestate = resources.loadData('new_game')
 options = resources.loadData('options')
 DISPLAYSURF = pygame.Surface((gamestate['game_width'],gamestate['game_height']))
-REALSURF = pygame.display.set_mode((options['screen_width'], options['screen_height'])) # ,pygame.FULLSCREEN 
+REALSURF = pygame.display.set_mode((options['screen_width'], options['screen_height']),pygame.FULLSCREEN) # ,pygame.FULLSCREEN 
 pygame.font.init()
 level = resources.loadLevel(gamestate['level'])
 assets = resources.loadAssets()
@@ -34,6 +34,6 @@ def load():
     for entity in json.loads(open('../game/maps/' + gamestate['level'] + '/entities.json').read()):
         entities.append(spawn(entity))
 def scale():
-    REALSURF.blit(pygame.transform.scale(DISPLAYSURF, (screenWidth, screenHeight)), (0,0))
+    REALSURF.blit(pygame.transform.scale(DISPLAYSURF, (options['screen_width'], options['screen_height'])), (0,0))
     
 

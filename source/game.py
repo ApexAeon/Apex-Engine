@@ -41,10 +41,10 @@ def start():
         DISPLAYSURF.blit(resources.getLevel('visual', level),(math.floor(calcLevelX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcLevelY(gamestate['x'], gamestate['y'], gamestate['z']))))
         DISPLAYSURF.blit(getAsset('player_display', assets),(math.floor(calcX(gamestate['x'], gamestate['y'], gamestate['z'])),math.floor(calcY(gamestate['x'], gamestate['y'], gamestate['z']))))
         DISPLAYSURF.blit(resources.getLevel('fg', level), (0,0))
-        DISPLAYSURF.blit(FONT.render('HP '+str(int(gamestate['player']['health'])), True, (0, 0, 255)), (0,0))
-        DISPLAYSURF.blit(FONT.render('AP '+str(int(gamestate['player']['armor'])), True, (0, 0, 255)), (0,30))
-        DISPLAYSURF.blit(FONT.render('X '+str(int(gamestate['x'])), True, (0, 0, 255)), (0,100))
-        DISPLAYSURF.blit(FONT.render('Z '+str(int(gamestate['z'])), True, (0, 0, 255)), (0,130))
+        DISPLAYSURF.blit(FONT.render('HP '+str(int(gamestate['player']['health'])), False, (0, 0, 255)), (0,0))
+        DISPLAYSURF.blit(FONT.render('AP '+str(int(gamestate['player']['armor'])), False, (0, 0, 255)), (0,30))
+        DISPLAYSURF.blit(FONT.render('X '+str(int(gamestate['x'])), False, (0, 0, 255)), (0,100))
+        DISPLAYSURF.blit(FONT.render('Z '+str(int(gamestate['z'])), False, (0, 0, 255)), (0,130))
 
         
         # Animations
